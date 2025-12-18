@@ -59,11 +59,11 @@ export default function HeroSection() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3 }}
-            className="p-6 bg-primary-50 dark:bg-primary-900/20 border-2 border-primary-200 dark:border-primary-500/30 rounded-2xl mb-10 max-w-6xl mx-auto"
+            className="p-6 bg-primary-50 dark:bg-primary-900/20 border-2 border-primary-200 dark:border-primary-500/30 rounded-2xl mb-10 max-w-4xl mx-auto"
           >
-            <div className="flex items-start gap-3">
-              <CheckCircle className="w-6 h-6 text-primary-500 flex-shrink-0 mt-1" />
-              <p className="text-lg text-slate-700 dark:text-slate-200 font-medium text-left">
+            <div className="flex flex-col items-center gap-3">
+              <CheckCircle className="w-6 h-6 text-primary-500" />
+              <p className="text-lg text-slate-700 dark:text-slate-200 font-medium text-center">
                 We install a DONE-FOR-YOU <span className="text-primary-600 dark:text-primary-400 font-bold">"Revenue & Retention System"</span> in 60 days.<br />
                 <span className="text-accent-600 dark:text-accent-400 font-bold">If we don't hit the agreed targets, you don't pay.</span>
               </p>

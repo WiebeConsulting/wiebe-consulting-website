@@ -118,8 +118,21 @@
 
 ---
 
+## v1.07 - Trust Box Width & Alignment (2024-12-18)
+**Status:** Completed
+
+### Changes
+- 📏 Reduced trust box width from max-w-6xl to max-w-4xl for better focus
+- 🎯 Centered text and icon in trust box (changed from left-aligned to centered)
+
+### Files Modified
+- `components/HeroSection.tsx` - Reduced trust box max-width and centered content
+- `package.json` - Updated version to 1.07.0
+
+---
+
 ## Version Tracking
-**Current Version:** v1.06
-**Next Version:** v1.07
+**Current Version:** v1.07
+**Next Version:** v1.08
 
 All future edits will increment the version number and be documented here.
