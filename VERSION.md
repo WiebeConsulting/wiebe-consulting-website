@@ -429,8 +429,72 @@ RESCHEDULE_LINK
 
 ---
 
+## v1.14.1 - DNS Records & Quick Start Guide (2024-12-18)
+**Status:** Completed
+
+### Changes
+- 📋 Added exact DNS records from Resend for copy-paste setup
+- 🚀 Created Quick Start Guide for immediate setup
+- 📝 Documented all 4 required DNS records with exact values
+- ✅ Step-by-step checklist for getting system operational
+
+### New Files Created
+- `DNS_RECORDS_TO_ADD.md` - Exact DNS records with values from Resend
+  - DKIM TXT record with full public key
+  - SPF TXT record for sender verification
+  - MX record for email sending (Amazon SES)
+  - MX record for email receiving (Amazon SES)
+  - Registrar-specific instructions (GoDaddy, Namecheap, Cloudflare)
+  - DNS propagation checking guide
+  - Troubleshooting section
+
+- `QUICK_START.md` - Fast-track setup guide
+  - 7-step checklist from DNS to deployment
+  - Priority ordering (email first, calendar/zoom later)
+  - Time estimates for each step
+  - Quick troubleshooting tips
+  - File reference guide
+
+### DNS Records Documented
+
+**Record 1 - DKIM:**
+- Type: TXT
+- Name: `resend._domainkey`
+- Value: Full DKIM public key from Resend
+
+**Record 2 - SPF:**
+- Type: TXT
+- Name: `send`
+- Value: `v=spf1 include:amazonses.com ~all`
+
+**Record 3 - MX Sending:**
+- Type: MX
+- Name: `send`
+- Mail Server: `feedback-smtp.us-east-1.amazonses.com`
+- Priority: 10
+
+**Record 4 - MX Receiving:**
+- Type: MX
+- Name: `@`
+- Mail Server: `inbound-smtp.us-east-1.amazonaws.com`
+- Priority: 0
+
+### Quick Start Priority
+
+1. Add DNS records (5 min)
+2. Verify domain in Resend (2 min)
+3. Create Resend API key (1 min)
+4. Configure .env.local (3 min)
+5. Test email system (2 min)
+6. Google Calendar setup (later)
+7. Zoom setup (later)
+
+**Total time to working email system: ~15 minutes + DNS propagation**
+
+---
+
 ## Version Tracking
-**Current Version:** v1.14
+**Current Version:** v1.14.1
 **Next Version:** v1.15
 
 All future edits will increment the version number and be documented here.
