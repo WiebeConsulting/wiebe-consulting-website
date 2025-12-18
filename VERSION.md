@@ -213,8 +213,75 @@
 
 ---
 
+## v1.12 - Comprehensive Booking System (2024-12-18)
+**Status:** Completed
+
+### Changes
+- 📅 Added complete Google Calendar API integration for appointment booking
+- 🎥 Integrated Zoom API for automatic meeting generation
+- 📧 Email notifications with confirmation and Zoom links
+- ⏰ Automated reminders (3 days, 24 hours, 6 hours, 1 hour before)
+- 🕐 EST timezone support with Sunday-Thursday 7am-4pm, Friday 7am-10am availability
+- 📋 5-field booking form (First name, Last name, Work email, Clinic name, Cell phone)
+- ✨ Beautiful booking modal with calendar view
+- 🔄 Real-time availability checking
+- ✅ Success confirmation with custom message
+
+### New Files Created
+- `components/BookingModal.tsx` - Interactive booking calendar and form component
+- `app/api/calendar/availability/route.ts` - API endpoint for checking available time slots
+- `app/api/calendar/book/route.ts` - API endpoint for creating bookings with Zoom meetings
+- `BOOKING_SETUP.md` - Comprehensive setup documentation for Google Calendar and Zoom APIs
+- `.env.local.example` - Environment variable template
+
+### Files Modified
+- `app/page.tsx` - Added booking modal state management and props
+- `components/Navbar.tsx` - Updated CTA buttons to trigger booking modal
+- `components/HeroSection.tsx` - Updated booking button to trigger modal
+- `components/CTASection.tsx` - Updated booking button to trigger modal
+- `components/PricingSection.tsx` - Added booking click prop support
+- `package.json` - Added dependencies: @googleapis/calendar, date-fns, date-fns-tz, zod, updated version to 1.12.0
+
+### New Dependencies
+- `@googleapis/calendar@^14.2.0` - Google Calendar API client
+- `date-fns@^4.1.0` - Date manipulation library
+- `date-fns-tz@^3.2.0` - Timezone utilities
+- `zod@^4.2.1` - Schema validation
+
+### Booking System Features
+- **Calendar Interface**: Week view with date selection, available time slots in 30-minute increments (booked as 45 minutes)
+- **Business Hours**: Automatically respects configured hours (EST timezone)
+- **Real-time Availability**: Checks Google Calendar for existing appointments
+- **Zoom Integration**: Generates unique Zoom meeting for each booking
+- **Email Automation**: Google Calendar sends invite with Zoom link
+- **Reminder System**: Multiple automated reminders via Google Calendar
+- **Custom Confirmation**: Displays specific message about replying with revenue/EMR data
+- **Mobile Responsive**: Full functionality on all device sizes
+- **Dark Mode Support**: Works with existing theme toggle
+
+### Setup Required
+See `BOOKING_SETUP.md` for detailed instructions on:
+1. Google Cloud Console configuration
+2. Service account creation and calendar sharing
+3. Zoom Server-to-Server OAuth app setup
+4. Environment variables configuration
+5. Testing and troubleshooting
+
+### Environment Variables Needed
+```
+GOOGLE_CLIENT_EMAIL
+GOOGLE_PRIVATE_KEY
+GOOGLE_CALENDAR_ID
+ZOOM_ACCOUNT_ID
+ZOOM_CLIENT_ID
+ZOOM_CLIENT_SECRET
+ZOOM_ACCESS_TOKEN
+```
+
+---
+
 ## Version Tracking
-**Current Version:** v1.11
-**Next Version:** v1.12
+**Current Version:** v1.12
+**Next Version:** v1.13
 
 All future edits will increment the version number and be documented here.

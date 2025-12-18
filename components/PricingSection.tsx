@@ -3,7 +3,11 @@
 import { motion } from 'framer-motion'
 import { ArrowRight, Shield, DollarSign } from 'lucide-react'
 
-export default function PricingSection() {
+interface PricingSectionProps {
+  onBookingClick: () => void
+}
+
+export default function PricingSection({ onBookingClick }: PricingSectionProps) {
   return (
     <section id="pricing" className="py-24 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-900/50">
       <div className="max-w-6xl mx-auto">

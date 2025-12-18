@@ -3,7 +3,11 @@
 import { motion } from 'framer-motion'
 import { ArrowRight, CheckCircle } from 'lucide-react'
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  onBookingClick: () => void
+}
+
+export default function HeroSection({ onBookingClick }: HeroSectionProps) {
   return (
     <section id="hero" className="relative min-h-screen flex items-center justify-center pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
       {/* Animated Background Orbs */}
@@ -77,15 +81,15 @@ export default function HeroSection() {
             transition={{ delay: 0.5 }}
             className="mb-6"
           >
-            <motion.a
-              href="#pricing"
+            <motion.button
+              onClick={onBookingClick}
               whileHover={{ scale: 1.05, boxShadow: '0 0 50px rgba(168, 85, 247, 0.5)' }}
               whileTap={{ scale: 0.95 }}
               className="inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-xl font-bold text-xl shadow-2xl hover:shadow-accent-500/50 transition-all"
             >
               <span>Book A 15-Minute Fit Call</span>
               <ArrowRight className="w-6 h-6" />
-            </motion.a>
+            </motion.button>
           </motion.div>
 
           {/* Safety Line */}

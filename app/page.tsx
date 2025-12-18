@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import HeroSection from '@/components/HeroSection'
 import ProblemSection from '@/components/ProblemSection'
 import SystemSection from '@/components/SystemSection'
@@ -12,26 +13,34 @@ import FAQSection from '@/components/FAQSection'
 import CTASection from '@/components/CTASection'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import BookingModal from '@/components/BookingModal'
 
 export default function Home() {
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
+
   return (
     <main className="min-h-screen bg-white dark:bg-slate-950">
       <div className="grid-background fixed inset-0 -z-10" />
-      
-      <Navbar />
-      
-      <HeroSection />
+
+      <Navbar onBookingClick={() => setIsBookingModalOpen(true)} />
+
+      <HeroSection onBookingClick={() => setIsBookingModalOpen(true)} />
       <ProblemSection />
       <SystemSection />
       <ProcessSection />
       <QualificationSection />
-      <PricingSection />
+      <PricingSection onBookingClick={() => setIsBookingModalOpen(true)} />
       <RequirementsSection />
       <AboutSection />
       <FAQSection />
-      <CTASection />
-      
+      <CTASection onBookingClick={() => setIsBookingModalOpen(true)} />
+
       <Footer />
+
+      <BookingModal
+        isOpen={isBookingModalOpen}
+        onClose={() => setIsBookingModalOpen(false)}
+      />
     </main>
   )
 }

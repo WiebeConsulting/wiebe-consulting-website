@@ -6,7 +6,11 @@ import { Calendar, Menu, X } from 'lucide-react'
 import Image from 'next/image'
 import ThemeToggle from './ThemeToggle'
 
-export default function Navbar() {
+interface NavbarProps {
+  onBookingClick: () => void
+}
+
+export default function Navbar({ onBookingClick }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
@@ -79,15 +83,15 @@ export default function Navbar() {
             </button>
 
             {/* CTA Button - Desktop */}
-            <motion.a
-              href="#pricing"
+            <motion.button
+              onClick={onBookingClick}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="hidden md:flex px-6 py-3 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-lg font-semibold items-center space-x-2 shadow-lg hover:shadow-xl transition-all"
             >
               <Calendar className="w-4 h-4" />
               <span>Book Fit Call</span>
-            </motion.a>
+            </motion.button>
           </div>
         </div>
       </div>
@@ -112,14 +116,16 @@ export default function Navbar() {
                   {link.name}
                 </a>
               ))}
-              <a
-                href="#pricing"
-                onClick={closeMobileMenu}
+              <button
+                onClick={() => {
+                  closeMobileMenu()
+                  onBookingClick()
+                }}
                 className="flex items-center justify-center gap-2 w-full px-6 py-4 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-lg font-semibold shadow-lg"
               >
                 <Calendar className="w-4 h-4" />
                 <span>Book Fit Call</span>
-              </a>
+              </button>
             </div>
           </motion.div>
         )}
