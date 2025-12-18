@@ -106,8 +106,20 @@
 
 ---
 
+## v1.06 - Trust Box Width Alignment (2024-12-18)
+**Status:** Completed
+
+### Changes
+- 📏 Expanded trust box width from max-w-5xl to max-w-6xl to match subtitle width
+
+### Files Modified
+- `components/HeroSection.tsx` - Updated trust box max-width
+- `package.json` - Updated version to 1.06.0
+
+---
+
 ## Version Tracking
-**Current Version:** v1.05
-**Next Version:** v1.06
+**Current Version:** v1.06
+**Next Version:** v1.07
 
 All future edits will increment the version number and be documented here.

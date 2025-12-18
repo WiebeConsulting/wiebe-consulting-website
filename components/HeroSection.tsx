@@ -59,7 +59,7 @@ export default function HeroSection() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3 }}
-            className="p-6 bg-primary-50 dark:bg-primary-900/20 border-2 border-primary-200 dark:border-primary-500/30 rounded-2xl mb-10 max-w-5xl mx-auto"
+            className="p-6 bg-primary-50 dark:bg-primary-900/20 border-2 border-primary-200 dark:border-primary-500/30 rounded-2xl mb-10 max-w-6xl mx-auto"
           >
             <div className="flex items-start gap-3">
               <CheckCircle className="w-6 h-6 text-primary-500 flex-shrink-0 mt-1" />
