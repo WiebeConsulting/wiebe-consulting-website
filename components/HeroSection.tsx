@@ -34,14 +34,14 @@ export default function HeroSection() {
         />
       </div>
 
-      <div className="max-w-5xl mx-auto text-center">
+      <div className="max-w-6xl mx-auto text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
           {/* Main Headline */}
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-display font-bold mb-8 leading-tight">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold mb-8 leading-tight">
             <span className="text-slate-900 dark:text-white">Add </span>
             <span className="gradient-text glow-effect">$30,000+ In 60 Days</span>
             <br />

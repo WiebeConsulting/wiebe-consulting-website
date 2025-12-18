@@ -62,8 +62,21 @@
 
 ---
 
+## v1.03 - Hero Headline Sizing (2024-12-18)
+**Status:** Completed
+
+### Changes
+- 📏 Reduced hero headline font size for better readability
+- 📐 Increased max-width from 5xl to 6xl for wider text area
+
+### Files Modified
+- `components/HeroSection.tsx` - Updated headline font sizes and container width
+- `package.json` - Updated version to 1.03.0
+
+---
+
 ## Version Tracking
-**Current Version:** v1.02
-**Next Version:** v1.03
+**Current Version:** v1.03
+**Next Version:** v1.04
 
 All future edits will increment the version number and be documented here.
