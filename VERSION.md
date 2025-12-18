@@ -92,8 +92,22 @@
 
 ---
 
+## v1.05 - Hero Text Refinements (2024-12-18)
+**Status:** Completed
+
+### Changes
+- 📏 Expanded subtitle width from max-w-5xl to max-w-6xl
+- 📝 Removed em dash from subtitle (changed to regular text flow)
+- 💬 Moved guarantee text to second line in trust box with line break
+
+### Files Modified
+- `components/HeroSection.tsx` - Updated subtitle width and trust box formatting
+- `package.json` - Updated version to 1.05.0
+
+---
+
 ## Version Tracking
-**Current Version:** v1.04
-**Next Version:** v1.05
+**Current Version:** v1.05
+**Next Version:** v1.06
 
 All future edits will increment the version number and be documented here.

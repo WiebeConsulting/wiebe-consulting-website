@@ -50,8 +50,8 @@ export default function HeroSection() {
           </h1>
 
           {/* Subheadline */}
-          <p className="text-xl sm:text-2xl text-slate-600 dark:text-slate-300 mb-8 leading-relaxed max-w-5xl mx-auto">
-            For owner-led <span className="text-accent-500 font-semibold">sports & ortho PT clinics</span> that want to cut preventable no-shows, get more athletes to finish plans of care, and reactivate lapsed patients—using the data already sitting in your EMR.
+          <p className="text-xl sm:text-2xl text-slate-600 dark:text-slate-300 mb-8 leading-relaxed max-w-6xl mx-auto">
+            For owner-led <span className="text-accent-500 font-semibold">sports & ortho PT clinics</span> that want to cut preventable no-shows, get more athletes to finish plans of care, and reactivate lapsed patients using the data already sitting in your EMR.
           </p>
 
           {/* Trust Box */}
@@ -64,8 +64,8 @@ export default function HeroSection() {
             <div className="flex items-start gap-3">
               <CheckCircle className="w-6 h-6 text-primary-500 flex-shrink-0 mt-1" />
               <p className="text-lg text-slate-700 dark:text-slate-200 font-medium text-left">
-                We install a DONE-FOR-YOU <span className="text-primary-600 dark:text-primary-400 font-bold">"Revenue & Retention System"</span> in 60 days.
-                <span className="text-accent-600 dark:text-accent-400 font-bold"> If we don't hit the agreed targets, you don't pay.</span>
+                We install a DONE-FOR-YOU <span className="text-primary-600 dark:text-primary-400 font-bold">"Revenue & Retention System"</span> in 60 days.<br />
+                <span className="text-accent-600 dark:text-accent-400 font-bold">If we don't hit the agreed targets, you don't pay.</span>
               </p>
             </div>
           </motion.div>
