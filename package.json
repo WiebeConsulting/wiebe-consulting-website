@@ -1,6 +1,6 @@
 {
   "name": "wiebe-consulting-v1",
-  "version": "1.12.0",
+  "version": "1.13.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3005",
@@ -17,6 +17,7 @@
     "next": "^15.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "resend": "^6.6.0",
     "zod": "^4.2.1"
   },
   "devDependencies": {

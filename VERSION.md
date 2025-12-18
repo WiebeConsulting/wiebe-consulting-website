@@ -280,8 +280,83 @@ ZOOM_ACCESS_TOKEN
 
 ---
 
+## v1.13 - Custom Email Sequences with Resend (2024-12-18)
+**Status:** Completed
+
+### Changes
+- 📧 Replaced Google Calendar email notifications with custom email sequences
+- ✉️ Integrated Resend API for professional email delivery
+- 📝 Created 5 custom email templates matching exact specifications
+- ⏰ Automated scheduled emails at 3 days, 24 hours, 6 hours, and 1 hour before
+- 🎨 Professional HTML email designs with plain text fallbacks
+- 🔄 Immediate confirmation email sent on booking
+
+### New Files Created
+- `lib/email-templates.ts` - All 5 custom email templates with HTML/text versions
+- `lib/email-service.ts` - Resend integration for sending and scheduling emails
+
+### Files Modified
+- `app/api/calendar/book/route.ts` - Added email sending logic for all 5 sequences
+- `BOOKING_SETUP.md` - Added Part 4: Resend Email API Setup with complete instructions
+- `.env.local.example` - Added Resend configuration variables
+- `package.json` - Added resend@^6.6.0 dependency, updated version to 1.13.0
+
+### New Dependencies
+- `resend@^6.6.0` - Email delivery service
+
+### Email Sequence Details
+
+**1. Immediate Confirmation** (sent instantly)
+- Subject: "You're booked: Revenue & Retention Gameplan on [DAY]"
+- Content: Meeting details, Zoom link, call agenda
+- Purpose: Instant confirmation and set expectations
+
+**2. 3 Days Before** (scheduled)
+- Subject: "Quick prep before our call on [DAY]"
+- Content: Homework request (monthly revenue, EMR patient count)
+- Purpose: Get prospect to engage and think about their numbers
+
+**3. 24 Hours Before** (scheduled)
+- Subject: "Confirming our call tomorrow at [TIME]"
+- Content: Confirmation, reschedule option
+- Purpose: Reduce no-shows, final confirmation
+
+**4. 6 Hours Before** (scheduled)
+- Subject: "Still good for [TIME] today?"
+- Content: Brief reminder, Zoom link, computer recommendation
+- Purpose: Day-of reminder and preparation
+
+**5. 1 Hour Before** (scheduled)
+- Subject: "Starting in 60 minutes"
+- Content: Ultra-short - just time and Zoom link
+- Purpose: Final reminder before call
+
+### Email Features
+- Professional HTML formatting with brand colors
+- Plain text fallbacks for all emails
+- Automated footer: "This is an automated reminder from Wiebe Consulting's scheduling system"
+- Personalized with first name, date, time, Zoom link
+- Reply-to set to ben@wiebe-consulting.com
+- Reschedule links included where appropriate
+
+### Environment Variables Added
+```
+RESEND_API_KEY
+EMAIL_FROM
+EMAIL_REPLY_TO
+RESCHEDULE_LINK
+```
+
+### Setup Required
+- Create Resend account at resend.com
+- Verify domain (wiebe-consulting.com) with DNS records
+- Create API key with full access permissions
+- Configure environment variables
+
+---
+
 ## Version Tracking
-**Current Version:** v1.12
-**Next Version:** v1.13
+**Current Version:** v1.13
+**Next Version:** v1.14
 
 All future edits will increment the version number and be documented here.

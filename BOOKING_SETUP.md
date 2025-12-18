@@ -17,6 +17,7 @@ The booking system allows visitors to:
 - Zoom Pro account
 - Access to Google Cloud Console
 - Access to Zoom Marketplace
+- Resend account for email delivery (recommended) or SMTP credentials
 
 ---
 
@@ -187,7 +188,107 @@ ZOOM_ACCESS_TOKEN=your_access_token
 
 ---
 
-## Part 4: Test the System
+## Part 4: Resend Email API Setup
+
+The booking system uses Resend for sending custom email sequences with confirmations and reminders.
+
+### Step 1: Create Resend Account
+
+1. Go to [Resend](https://resend.com)
+2. Sign up with ben@wiebe-consulting.com
+3. Verify your email address
+
+### Step 2: Add Your Domain
+
+1. In Resend dashboard, go to "Domains"
+2. Click "Add Domain"
+3. Enter your domain: `wiebe-consulting.com`
+4. Add the DNS records provided by Resend to your domain registrar:
+   - SPF record (TXT)
+   - DKIM records (TXT)
+   - DMARC record (TXT)
+5. Wait for verification (usually 5-30 minutes)
+
+### Step 3: Create API Key
+
+1. Go to "API Keys" in Resend dashboard
+2. Click "Create API Key"
+3. Name: "Booking System Production"
+4. Permission: "Full Access" (for sending and scheduling emails)
+5. Click "Create"
+6. **IMPORTANT**: Copy the API key immediately - you won't see it again
+
+### Step 4: Configure Email Settings
+
+In your `.env.local` file, add:
+
+```bash
+# Resend Email API
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxx
+EMAIL_FROM=Ben Wiebe <ben@wiebe-consulting.com>
+EMAIL_REPLY_TO=ben@wiebe-consulting.com
+RESCHEDULE_LINK=https://wiebe-consulting.com
+```
+
+### Email Sequence Overview
+
+The system sends 5 automated emails:
+
+1. **Immediate Confirmation** - Sent instantly when booking is created
+   - Subject: "You're booked: Revenue & Retention Gameplan on [DAY]"
+   - Includes: Meeting details, Zoom link, what to expect
+
+2. **3 Days Before** - "Homework" email
+   - Subject: "Quick prep before our call on [DAY]"
+   - Asks for: Monthly revenue estimate, number of patients in EMR
+
+3. **24 Hours Before** - Confirmation reminder
+   - Subject: "Confirming our call tomorrow at [TIME]"
+   - Reinforces meeting details and reschedule option
+
+4. **6 Hours Before** - Short nudge
+   - Subject: "Still good for [TIME] today?"
+   - Brief reminder with Zoom link
+
+5. **1 Hour Before** - Ultra-short final reminder
+   - Subject: "Starting in 60 minutes"
+   - Just time and Zoom link
+
+### Email Scheduling
+
+Resend supports scheduled emails natively. All reminder emails are scheduled automatically when the booking is created:
+- 3 days before: `startTime - 72 hours`
+- 24 hours before: `startTime - 24 hours`
+- 6 hours before: `startTime - 6 hours`
+- 1 hour before: `startTime - 60 minutes`
+
+### Testing Email Delivery
+
+1. Send a test booking with your own email
+2. Check inbox for immediate confirmation
+3. Verify scheduled emails appear in Resend dashboard under "Scheduled"
+4. Monitor delivery in Resend "Logs" section
+
+### Troubleshooting Email Issues
+
+**Emails not sending:**
+- Verify RESEND_API_KEY is correct
+- Check domain is verified in Resend dashboard
+- Look for errors in server logs (console.log in email-service.ts)
+
+**Emails going to spam:**
+- Ensure all DNS records (SPF, DKIM, DMARC) are properly configured
+- Add your domain to email whitelist during testing
+- Warm up your domain by sending test emails gradually
+
+**Scheduled emails not working:**
+- Verify Resend API supports scheduling (requires paid plan for some features)
+- Check scheduled email timestamps are in the future
+- View scheduled emails in Resend dashboard
+
+---
+
+## Part 5: Test the System
 
 ### Test Availability Endpoint
 

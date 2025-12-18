@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { google } from 'googleapis'
+import { format } from 'date-fns'
+import { sendEmail, scheduleEmail } from '@/lib/email-service'
+import { emailTemplates } from '@/lib/email-templates'
 
 const TIMEZONE = 'America/New_York' // EST/EDT
 const CALENDAR_EMAIL = 'ben@wiebe-consulting.com'
+const YOUR_NAME = 'Ben Wiebe'
+const RESCHEDULE_LINK = process.env.RESCHEDULE_LINK || 'https://wiebe-consulting.com'
 
 // Initialize Google Calendar API
 function getCalendarClient() {
@@ -148,8 +153,75 @@ Action Required: Please reply to the confirmation email with:
     const response = await calendar.events.insert({
       calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
       requestBody: event,
-      sendUpdates: 'all', // Send email to attendees
+      sendUpdates: 'none', // We'll send our own custom emails
       conferenceDataVersion: zoomMeeting ? 1 : 0,
+    })
+
+    // Format time slot for emails
+    const timeSlot = format(startTime, 'h:mm a')
+
+    // Prepare email template data
+    const emailData = {
+      firstName,
+      date: startTime,
+      timeSlot,
+      timezone: 'EST',
+      zoomLink: zoomMeeting?.joinUrl || 'TBD',
+      rescheduleLink: RESCHEDULE_LINK,
+      yourName: YOUR_NAME
+    }
+
+    // 1) Send immediate confirmation email
+    const immediateEmail = emailTemplates.immediateConfirmation(emailData)
+    await sendEmail({
+      to: email,
+      subject: immediateEmail.subject,
+      html: immediateEmail.html,
+      text: immediateEmail.text
+    })
+
+    // 2) Schedule 3 days before email
+    const threeDaysBeforeTime = new Date(startTime.getTime() - 3 * 24 * 60 * 60 * 1000)
+    const threeDaysEmail = emailTemplates.threeDaysBefore(emailData)
+    await scheduleEmail({
+      to: email,
+      subject: threeDaysEmail.subject,
+      html: threeDaysEmail.html,
+      text: threeDaysEmail.text,
+      scheduledFor: threeDaysBeforeTime
+    })
+
+    // 3) Schedule 24 hours before email
+    const oneDayBeforeTime = new Date(startTime.getTime() - 24 * 60 * 60 * 1000)
+    const oneDayEmail = emailTemplates.oneDayBefore(emailData)
+    await scheduleEmail({
+      to: email,
+      subject: oneDayEmail.subject,
+      html: oneDayEmail.html,
+      text: oneDayEmail.text,
+      scheduledFor: oneDayBeforeTime
+    })
+
+    // 4) Schedule 6 hours before email
+    const sixHoursBeforeTime = new Date(startTime.getTime() - 6 * 60 * 60 * 1000)
+    const sixHoursEmail = emailTemplates.sixHoursBefore(emailData)
+    await scheduleEmail({
+      to: email,
+      subject: sixHoursEmail.subject,
+      html: sixHoursEmail.html,
+      text: sixHoursEmail.text,
+      scheduledFor: sixHoursBeforeTime
+    })
+
+    // 5) Schedule 1 hour before email
+    const oneHourBeforeTime = new Date(startTime.getTime() - 60 * 60 * 1000)
+    const oneHourEmail = emailTemplates.oneHourBefore(emailData)
+    await scheduleEmail({
+      to: email,
+      subject: oneHourEmail.subject,
+      html: oneHourEmail.html,
+      text: oneHourEmail.text,
+      scheduledFor: oneHourBeforeTime
     })
 
     return NextResponse.json({
@@ -157,7 +229,7 @@ Action Required: Please reply to the confirmation email with:
       eventId: response.data.id,
       eventLink: response.data.htmlLink,
       zoomLink: zoomMeeting?.joinUrl,
-      message: 'Booking confirmed! Calendar invite sent to your email.',
+      message: 'Booking confirmed! Check your email for confirmation and Zoom link.',
     })
 
   } catch (error) {
