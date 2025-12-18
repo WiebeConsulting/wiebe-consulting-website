@@ -86,7 +86,7 @@ export default function SystemSection() {
           className="text-center p-10 bg-gradient-to-r from-primary-500/10 to-accent-500/10 border-2 border-primary-300 dark:border-primary-600 rounded-2xl"
         >
           <p className="text-2xl font-bold text-slate-900 dark:text-white">
-            Everything is done-for-you: strategy, copy, automations, and front-desk scripts.
+            Everything is DONE-FOR-YOU: strategy, copy, automations, and front-desk scripts.
           </p>
         </motion.div>
       </div>

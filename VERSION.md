@@ -75,8 +75,25 @@
 
 ---
 
+## v1.04 - Hero Section Enhancements (2024-12-18)
+**Status:** Completed
+
+### Changes
+- 📐 Increased hero section width from max-w-6xl to max-w-7xl
+- 📝 Updated subtitle punctuation (comma to em dash)
+- 📏 Expanded subtitle max-width from 4xl to 5xl
+- 📏 Expanded trust box max-width from 4xl to 5xl
+- 🔤 Changed "done-for-you" to "DONE-FOR-YOU" (all caps) throughout
+
+### Files Modified
+- `components/HeroSection.tsx` - Increased widths and updated text styling
+- `components/SystemSection.tsx` - Capitalized "DONE-FOR-YOU"
+- `package.json` - Updated version to 1.04.0
+
+---
+
 ## Version Tracking
-**Current Version:** v1.03
-**Next Version:** v1.04
+**Current Version:** v1.04
+**Next Version:** v1.05
 
 All future edits will increment the version number and be documented here.
