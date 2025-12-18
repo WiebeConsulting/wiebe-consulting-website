@@ -61,13 +61,13 @@ export default function SystemSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.15 }}
-              className="p-8 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-600 transition-all"
+              className="p-8 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-600 transition-all text-center"
             >
-              <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-accent-500 rounded-2xl flex items-center justify-center mb-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-accent-500 rounded-2xl flex items-center justify-center mb-6 mx-auto">
                 <pillar.icon className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{pillar.title}</h3>
-              <ul className="space-y-3">
+              <ul className="space-y-3 text-left inline-block">
                 {pillar.features.map((feature, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <div className="w-1.5 h-1.5 bg-primary-500 rounded-full mt-2 flex-shrink-0"></div>

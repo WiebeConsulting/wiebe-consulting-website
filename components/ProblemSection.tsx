@@ -84,7 +84,7 @@ export default function ProblemSection() {
             </div>
             <div className="flex items-start gap-2">
               <div className="w-2 h-2 bg-primary-500 rounded-full mt-2"></div>
-              <p className="text-slate-700 dark:text-slate-300">Brings back the ones who drifted away</p>
+              <p className="text-slate-700 dark:text-slate-300">Bring back the ones who drifted away</p>
             </div>
           </div>
           <p className="text-2xl font-bold text-primary-600 dark:text-primary-400 mt-8">

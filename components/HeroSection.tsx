@@ -51,7 +51,7 @@ export default function HeroSection() {
 
           {/* Subheadline */}
           <p className="text-xl sm:text-2xl text-slate-600 dark:text-slate-300 mb-8 leading-relaxed max-w-6xl mx-auto">
-            For owner-led <span className="text-accent-500 font-semibold">sports & ortho PT clinics</span> that want to cut preventable no-shows, get more athletes to finish plans of care, and reactivate lapsed patients using the data already sitting in your EMR.
+            For owner-led <span className="text-accent-500 font-semibold">sports & ortho PT clinics</span> that want to cut preventable no-shows, get more athletes to finish plans-of-care, and reactivate lapsed patients using the data already sitting in your EMR.
           </p>
 
           {/* Trust Box */}

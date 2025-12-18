@@ -145,8 +145,25 @@
 
 ---
 
+## v1.09 - Text Updates & Icon Centering (2024-12-18)
+**Status:** Completed
+
+### Changes
+- ✏️ Changed "plans of care" to "plans-of-care" in hero subtitle
+- ✏️ Changed "Brings back" to "Bring back" in ProblemSection
+- 🎯 Centered icons above text in SystemSection cards
+- 📐 Made feature lists left-aligned inline blocks for better layout
+
+### Files Modified
+- `components/HeroSection.tsx` - Updated "plans of care" to "plans-of-care"
+- `components/ProblemSection.tsx` - Updated verb tense to "Bring back"
+- `components/SystemSection.tsx` - Centered icons and adjusted text alignment
+- `package.json` - Updated version to 1.09.0
+
+---
+
 ## Version Tracking
-**Current Version:** v1.08
-**Next Version:** v1.09
+**Current Version:** v1.09
+**Next Version:** v1.10
 
 All future edits will increment the version number and be documented here.
