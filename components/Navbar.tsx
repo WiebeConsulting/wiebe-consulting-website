@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Menu, X } from 'lucide-react'
 import Image from 'next/image'
+import ThemeToggle from './ThemeToggle'
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -63,25 +64,31 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-slate-700 dark:text-slate-300"
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          {/* Right side buttons */}
+          <div className="flex items-center gap-3">
+            {/* Theme Toggle */}
+            <ThemeToggle />
 
-          {/* CTA Button - Desktop */}
-          <motion.a
-            href="#pricing"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="hidden md:flex px-6 py-3 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-lg font-semibold items-center space-x-2 shadow-lg hover:shadow-xl transition-all"
-          >
-            <Calendar className="w-4 h-4" />
-            <span>Book Fit Call</span>
-          </motion.a>
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-slate-700 dark:text-slate-300"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+
+            {/* CTA Button - Desktop */}
+            <motion.a
+              href="#pricing"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="hidden md:flex px-6 py-3 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-lg font-semibold items-center space-x-2 shadow-lg hover:shadow-xl transition-all"
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Book Fit Call</span>
+            </motion.a>
+          </div>
         </div>
       </div>
 

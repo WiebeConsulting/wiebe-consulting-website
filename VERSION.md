@@ -189,8 +189,32 @@
 
 ---
 
+## v1.11 - Dark/Light Mode Toggle (2024-12-18)
+**Status:** Completed
+
+### Changes
+- 🌓 Added dark/light mode toggle button in navbar
+- 💾 Theme preference saved to localStorage
+- 🎨 Sun icon for light mode, Moon icon for dark mode
+- ✨ Smooth theme transitions with Framer Motion
+- 🔄 Respects system theme preference on first load
+
+### Files Modified
+- `components/ThemeToggle.tsx` - New component for theme switching
+- `components/Navbar.tsx` - Added ThemeToggle component to navbar
+- `package.json` - Updated version to 1.11.0
+
+### Theme Toggle Features
+- Button positioned in navbar next to mobile menu/CTA
+- Persists theme choice across page reloads
+- Animated hover and tap effects
+- Accessible with aria-label
+- Works on both mobile and desktop
+
+---
+
 ## Version Tracking
-**Current Version:** v1.10
-**Next Version:** v1.11
+**Current Version:** v1.11
+**Next Version:** v1.12
 
 All future edits will increment the version number and be documented here.
