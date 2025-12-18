@@ -131,8 +131,22 @@
 
 ---
 
+## v1.08 - Trust Box Checkmark Redesign (2024-12-18)
+**Status:** Completed
+
+### Changes
+- 🎨 Replaced small centered checkmark with large left-aligned checkmark
+- 🔍 Made checkmark semi-transparent (30% opacity) to blend with box
+- 📏 Increased checkmark size to 64px (w-16 h-16) to span both text lines
+
+### Files Modified
+- `components/HeroSection.tsx` - Updated trust box layout and checkmark styling
+- `package.json` - Updated version to 1.08.0
+
+---
+
 ## Version Tracking
-**Current Version:** v1.07
-**Next Version:** v1.08
+**Current Version:** v1.08
+**Next Version:** v1.09
 
 All future edits will increment the version number and be documented here.
