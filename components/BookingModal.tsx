@@ -32,6 +32,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [showConfirmation, setShowConfirmation] = useState(false)
+  const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
@@ -40,10 +41,10 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
     phone: ''
   })
 
-  // Generate week days starting from Sunday
-  const getWeekDays = () => {
+  // Generate 2 weeks of days starting from Sunday
+  const getTwoWeekDays = () => {
     const start = startOfWeek(currentWeek, { weekStartsOn: 0 }) // Sunday = 0
-    return Array.from({ length: 7 }, (_, i) => addDays(start, i))
+    return Array.from({ length: 14 }, (_, i) => addDays(start, i))
   }
 
   // Check if date is available (Sunday-Thursday or Friday before 10am)
@@ -123,6 +124,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
   const handleTimeSelect = (slot: TimeSlot) => {
     if (slot.available) {
       setSelectedTime(slot.dateTime)
+      setShowForm(true) // Show form after time selection
     }
   }
 
@@ -174,6 +176,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
   const resetForm = () => {
     setSelectedDate(null)
     setSelectedTime(null)
+    setShowForm(false)
     setFormData({
       firstName: '',
       lastName: '',
@@ -183,7 +186,9 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
     })
   }
 
-  const weekDays = getWeekDays()
+  const twoWeekDays = getTwoWeekDays()
+  const firstWeek = twoWeekDays.slice(0, 7)
+  const secondWeek = twoWeekDays.slice(7, 14)
 
   return (
     <AnimatePresence>
@@ -243,35 +248,76 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                 </div>
               ) : (
                 <div className="p-6">
-                  <div className="grid md:grid-cols-2 gap-8">
+                  <div className={showForm ? "grid md:grid-cols-2 gap-8" : "max-w-4xl mx-auto"}>
                     {/* Calendar Section */}
-                    <div>
+                    <div className={showForm ? "" : "w-full"}>
                       {/* Week Navigation */}
                       <div className="flex items-center justify-between mb-6">
                         <button
-                          onClick={() => setCurrentWeek(addWeeks(currentWeek, -1))}
+                          onClick={() => setCurrentWeek(addWeeks(currentWeek, -2))}
                           className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
                         >
                           <ChevronLeft className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                         </button>
                         <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                          {format(weekDays[0], 'MMM d')} - {format(weekDays[6], 'MMM d, yyyy')}
+                          {format(firstWeek[0], 'MMM d')} - {format(secondWeek[6], 'MMM d, yyyy')}
                         </h3>
                         <button
-                          onClick={() => setCurrentWeek(addWeeks(currentWeek, 1))}
+                          onClick={() => setCurrentWeek(addWeeks(currentWeek, 2))}
                           className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
                         >
                           <ChevronRight className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                         </button>
                       </div>
 
-                      {/* Week Days */}
-                      <div className="grid grid-cols-7 gap-2 mb-6">
-                        {weekDays.map((day, index) => {
-                          const isAvailable = isDateAvailable(day) && day >= new Date()
-                          const isSelected = selectedDate && isSameDay(day, selectedDate)
+                      {/* First Week */}
+                      <div className="mb-4">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-semibold">
+                          {format(firstWeek[0], 'MMMM d')} - {format(firstWeek[6], 'd, yyyy')}
+                        </p>
+                        <div className="grid grid-cols-7 gap-2">
+                          {firstWeek.map((day, index) => {
+                            const isAvailable = isDateAvailable(day) && day >= new Date()
+                            const isSelected = selectedDate && isSameDay(day, selectedDate)
 
-                          return (
+                            return (
+                              <button
+                                key={index}
+                                onClick={() => handleDateSelect(day)}
+                                disabled={!isAvailable}
+                                className={`
+                                  p-3 rounded-lg text-center transition-all
+                                  ${isSelected
+                                    ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-lg'
+                                    : isAvailable
+                                      ? 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                      : 'bg-slate-50 dark:bg-slate-900 opacity-50 cursor-not-allowed'
+                                  }
+                                `}
+                              >
+                                <div className={`text-xs mb-1 ${isSelected ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`}>
+                                  {format(day, 'EEE')}
+                                </div>
+                                <div className={`text-lg font-semibold ${isSelected ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
+                                  {format(day, 'd')}
+                                </div>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Second Week */}
+                      <div className="mb-6">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-semibold">
+                          {format(secondWeek[0], 'MMMM d')} - {format(secondWeek[6], 'd, yyyy')}
+                        </p>
+                        <div className="grid grid-cols-7 gap-2">
+                          {secondWeek.map((day, index) => {
+                            const isAvailable = isDateAvailable(day) && day >= new Date()
+                            const isSelected = selectedDate && isSameDay(day, selectedDate)
+
+                            return (
                             <button
                               key={index}
                               onClick={() => handleDateSelect(day)}
@@ -296,6 +342,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                           )
                         })}
                       </div>
+                    </div>
 
                       {/* Time Slots */}
                       {selectedDate && (
@@ -334,9 +381,10 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                       )}
                     </div>
 
-                    {/* Form Section */}
-                    <div>
-                      <h4 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Your Information</h4>
+                    {/* Form Section - Only show after time selection */}
+                    {showForm && (
+                      <div>
+                        <h4 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Your Information</h4>
                       <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
@@ -443,6 +491,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                         </button>
                       </form>
                     </div>
+                    )}
                   </div>
                 </div>
               )}

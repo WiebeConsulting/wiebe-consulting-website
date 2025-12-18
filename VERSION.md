@@ -355,8 +355,82 @@ RESCHEDULE_LINK
 
 ---
 
+## v1.14 - Enhanced Booking UX & Resend Setup Guide (2024-12-18)
+**Status:** Completed
+
+### Changes
+- 📅 Updated booking calendar to show 2 weeks instead of 1 week
+- 🎯 Improved booking flow - form only appears after time selection
+- 📋 Created comprehensive Resend setup guide with DNS instructions
+- 📝 Added .env.local template file for easy configuration
+- ✨ Better visual hierarchy - calendar takes full width until form is needed
+
+### Files Modified
+- `components/BookingModal.tsx` - Updated to show 2-week calendar and conditional form display
+  - Changed from 7-day to 14-day calendar view
+  - Split into two week rows with labels
+  - Added `showForm` state that triggers after time selection
+  - Form now appears in right column only after user selects a time
+  - Calendar takes full width when form is hidden
+  - Navigation buttons now jump 2 weeks instead of 1
+
+### New Files Created
+- `RESEND_SETUP_GUIDE.md` - Complete walkthrough for Resend configuration
+  - Step-by-step domain verification instructions
+  - DNS record templates for SPF, DKIM, and DMARC
+  - Registrar-specific instructions (GoDaddy, Namecheap, Cloudflare)
+  - API key creation guide
+  - Troubleshooting section
+  - Email delivery testing instructions
+- `.env.local.template` - Clean template with all required environment variables
+  - Organized by service (Google, Zoom, Resend)
+  - Includes helpful comments
+  - Ready to copy and fill in
+
+### UX Improvements
+
+**Before:**
+- Calendar showed 1 week at a time
+- Form visible immediately, taking up half the modal
+- Had to scroll to see all time slots on mobile
+
+**After:**
+- Calendar shows 2 full weeks at a time
+- Calendar takes full width initially - better visibility
+- Form only appears after selecting a time (cleaner, less overwhelming)
+- Two-column layout activates when form shows
+- Easier to scan available dates and times
+
+### Booking Flow
+
+1. User clicks "Book Fit Call" → Modal opens
+2. User sees 2-week calendar (full width, clean)
+3. User selects a date → Time slots appear below
+4. User selects a time → Form slides in on the right
+5. User fills form → Clicks "Confirm Booking"
+6. Success confirmation appears
+
+### Setup Documentation
+
+**RESEND_SETUP_GUIDE.md includes:**
+- Account access instructions
+- Domain verification process
+- DNS record configuration (with examples)
+- API key creation steps
+- Environment variable setup
+- Testing procedures
+- Troubleshooting guide
+- Email sequence overview
+
+**Resend DNS Records Required:**
+1. SPF (TXT) - Sender authentication
+2. DKIM (TXT, 1-2 records) - Email signing
+3. DMARC (TXT) - Email policy
+
+---
+
 ## Version Tracking
-**Current Version:** v1.13
-**Next Version:** v1.14
+**Current Version:** v1.14
+**Next Version:** v1.15
 
 All future edits will increment the version number and be documented here.
