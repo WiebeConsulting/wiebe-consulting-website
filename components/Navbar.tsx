@@ -1,10 +1,24 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { Calendar } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Calendar, Menu, X } from 'lucide-react'
 import Image from 'next/image'
 
 export default function Navbar() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [mobileMenuOpen])
+
   const navLinks = [
     { name: 'How It Works', href: '#process' },
     { name: 'Pricing', href: '#pricing' },
@@ -12,7 +26,10 @@ export default function Navbar() {
     { name: 'About', href: '#about' },
   ]
 
+  const closeMobileMenu = () => setMobileMenuOpen(false)
+
   return (
+    <>
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
@@ -46,19 +63,61 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* CTA Button */}
+          {/* Mobile menu button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 text-slate-700 dark:text-slate-300"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+
+          {/* CTA Button - Desktop */}
           <motion.a
             href="#pricing"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-6 py-3 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-lg font-semibold flex items-center space-x-2 shadow-lg hover:shadow-xl transition-all"
+            className="hidden md:flex px-6 py-3 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-lg font-semibold items-center space-x-2 shadow-lg hover:shadow-xl transition-all"
           >
             <Calendar className="w-4 h-4" />
-            <span className="hidden sm:inline">Book Fit Call</span>
-            <span className="sm:hidden">Book Call</span>
+            <span>Book Fit Call</span>
           </motion.a>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden bg-white dark:bg-slate-950 border-b border-gray-200 dark:border-gray-800"
+          >
+            <div className="px-4 py-6 space-y-4">
+              {navLinks.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  onClick={closeMobileMenu}
+                  className="block py-3 text-lg font-medium text-slate-700 dark:text-slate-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
+                >
+                  {link.name}
+                </a>
+              ))}
+              <a
+                href="#pricing"
+                onClick={closeMobileMenu}
+                className="flex items-center justify-center gap-2 w-full px-6 py-4 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-lg font-semibold shadow-lg"
+              >
+                <Calendar className="w-4 h-4" />
+                <span>Book Fit Call</span>
+              </a>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.nav>
+    </>
   )
 }
