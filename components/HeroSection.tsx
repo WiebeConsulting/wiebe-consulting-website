@@ -43,9 +43,7 @@ export default function HeroSection() {
           {/* Main Headline */}
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-display font-bold mb-8 leading-tight">
             <span className="text-slate-900 dark:text-white">Add </span>
-            <span className="gradient-text glow-effect">$30,000+</span>
-            <br />
-            <span className="text-slate-900 dark:text-white">In 60 Days</span>
+            <span className="gradient-text glow-effect">$30,000+ In 60 Days</span>
             <br />
             <span className="text-slate-700 dark:text-slate-300">From Patients You </span>
             <span className="text-accent-500">Already Have</span>
