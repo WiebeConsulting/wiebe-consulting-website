@@ -493,8 +493,44 @@ RESCHEDULE_LINK
 
 ---
 
+## v1.14.2 - Fix Missing googleapis Package (2024-12-18)
+**Status:** Completed
+
+### Bug Fix
+- 🐛 Fixed build error: "Module not found: Can't resolve 'googleapis'"
+- ➕ Installed googleapis package to resolve Calendar API dependency
+
+### Issue Details
+**Error:** When attempting to book a time, the build failed with:
+```
+Module not found: Can't resolve 'googleapis'
+./app/api/calendar/availability/route.ts (2:1)
+```
+
+**Root Cause:** The Google Calendar API code imports `googleapis`, but while `@googleapis/calendar` was installed in v1.12, the base `googleapis` package was missing.
+
+**Resolution:** Installed googleapis package via npm, resolving the dependency issue.
+
+### Files Modified
+- `package.json` - Added googleapis to dependencies (installed via npm)
+- `VERSION.md` - Updated with fix documentation
+
+### Package Changes
+```bash
+npm install googleapis
+# Result: added 1 package, 0 vulnerabilities
+```
+
+### Impact
+- ✅ Booking calendar now loads without build errors
+- ✅ Calendar availability API route functional
+- ✅ Users can now successfully create bookings
+- ⏳ DNS configuration still required for email functionality
+
+---
+
 ## Version Tracking
-**Current Version:** v1.14.1
+**Current Version:** v1.14.2
 **Next Version:** v1.15
 
 All future edits will increment the version number and be documented here.
