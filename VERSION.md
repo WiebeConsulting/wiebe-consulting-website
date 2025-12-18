@@ -42,8 +42,28 @@
 
 ---
 
+## v1.02 - Navigation Menu & Logo (2024-12-18)
+**Status:** Completed
+
+### Changes
+- ➕ Added clickable navigation menu with responsive design
+- 🎨 Integrated Wiebe Consulting logo in header
+- 🔗 Added section anchor links (How It Works, Pricing, FAQ, About)
+- 📱 Mobile-responsive navbar (hides nav links on small screens)
+
+### Files Modified
+- `components/Navbar.tsx` - Added logo, navigation links, and responsive CTA button
+- `components/ProcessSection.tsx` - Added id="process" for navigation
+- `components/PricingSection.tsx` - Added id="pricing" for navigation
+- `components/FAQSection.tsx` - Added id="faq" for navigation
+- `components/AboutSection.tsx` - Added id="about" for navigation
+- `public/logo.png` - Added company logo asset
+- `package.json` - Updated version to 1.02.0
+
+---
+
 ## Version Tracking
-**Current Version:** v1.01
-**Next Version:** v1.02
+**Current Version:** v1.02
+**Next Version:** v1.03
 
 All future edits will increment the version number and be documented here.
