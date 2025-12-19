@@ -15,6 +15,7 @@ import CTASection from '@/components/CTASection'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import BookingModal from '@/components/BookingModal'
+import SchemaMarkup from '@/components/SchemaMarkup'
 
 export default function Home() {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
@@ -27,6 +28,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-white dark:bg-slate-950">
+      <SchemaMarkup />
       <div className="grid-background fixed inset-0 -z-10" />
 
       <Navbar onBookingClick={() => handleBookingClick('navbar')} />

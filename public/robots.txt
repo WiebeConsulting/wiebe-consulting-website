@@ -1,0 +1,9 @@
+# Robots.txt for wiebe-consulting.com
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://wiebe-consulting.com/sitemap.xml
+
+# Block admin/API routes
+Disallow: /api/
