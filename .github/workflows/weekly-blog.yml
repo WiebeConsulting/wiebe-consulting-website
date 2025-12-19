@@ -39,13 +39,8 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add content/blog/*.md public/blog/*.png
+          git add content/blog/drafts/*.md public/blog/*.png || true
           git diff --staged --quiet || git commit -m "📝 Auto-generated weekly blog post
 
           🤖 Generated with Claude AI + DALL-E"
-          git push
-
-      - name: Trigger Vercel deployment
-        if: success()
-        run: |
-          curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}" || true
+          git push origin main
