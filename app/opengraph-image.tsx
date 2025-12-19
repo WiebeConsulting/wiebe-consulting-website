@@ -22,8 +22,10 @@ export default async function Image() {
           justifyContent: 'center',
           position: 'relative',
           backgroundImage: 'url(https://wiebe-consulting.com/og-image.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundSize: 'contain',
+          backgroundPosition: 'center center',
+          backgroundRepeat: 'no-repeat',
+          backgroundColor: '#0f172a',
         }}
       >
         {/* Semi-transparent overlay for text readability */}
