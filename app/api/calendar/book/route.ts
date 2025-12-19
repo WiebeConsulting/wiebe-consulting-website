@@ -8,9 +8,15 @@ const TIMEZONE = 'America/New_York' // EST/EDT
 const CALENDAR_EMAIL = 'ben@wiebe-consulting.com'
 const YOUR_NAME = 'Ben Wiebe'
 const RESCHEDULE_LINK = process.env.RESCHEDULE_LINK || 'https://wiebe-consulting.com'
+const ZOOM_PMI_LINK = 'https://zoom.us/j/4473767236'
 
-// Initialize Google Calendar API
+// Initialize Google Calendar API (returns null if not configured)
 function getCalendarClient() {
+  if (!process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
+    console.warn('Google Calendar not configured - skipping calendar event creation')
+    return null
+  }
+
   const auth = new google.auth.GoogleAuth({
     credentials: {
       client_email: process.env.GOOGLE_CLIENT_EMAIL,
@@ -103,70 +109,80 @@ Action Required: Please reply to the confirmation email with:
 - How many active patients are in your EMR
     `.trim()
 
-    // Create Google Calendar event
+    // Create Google Calendar event (if configured)
     const calendar = getCalendarClient()
+    let calendarEventId = null
+    let calendarEventLink = null
 
-    const event = {
-      summary: `Fit Call - ${firstName} ${lastName} (${clinicName})`,
-      description,
-      start: {
-        dateTime: startTime.toISOString(),
-        timeZone: TIMEZONE,
-      },
-      end: {
-        dateTime: endTime.toISOString(),
-        timeZone: TIMEZONE,
-      },
-      attendees: [
-        { email, displayName: `${firstName} ${lastName}` },
-      ],
-      reminders: {
-        useDefault: false,
-        overrides: [
-          { method: 'email', minutes: 60 }, // 1 hour before
-          { method: 'email', minutes: 360 }, // 6 hours before
-          { method: 'email', minutes: 1440 }, // 24 hours before
-          { method: 'email', minutes: 4320 }, // 3 days before
-          { method: 'popup', minutes: 60 }, // 1 hour before
+    if (calendar) {
+      const event = {
+        summary: `Fit Call - ${firstName} ${lastName} (${clinicName})`,
+        description,
+        start: {
+          dateTime: startTime.toISOString(),
+          timeZone: TIMEZONE,
+        },
+        end: {
+          dateTime: endTime.toISOString(),
+          timeZone: TIMEZONE,
+        },
+        attendees: [
+          { email, displayName: `${firstName} ${lastName}` },
         ],
-      },
-      conferenceData: zoomMeeting
-        ? {
-            entryPoints: [
-              {
-                entryPointType: 'video',
-                uri: zoomMeeting.joinUrl,
-                label: 'Zoom Meeting',
+        reminders: {
+          useDefault: false,
+          overrides: [
+            { method: 'email', minutes: 60 }, // 1 hour before
+            { method: 'email', minutes: 360 }, // 6 hours before
+            { method: 'email', minutes: 1440 }, // 24 hours before
+            { method: 'email', minutes: 4320 }, // 3 days before
+            { method: 'popup', minutes: 60 }, // 1 hour before
+          ],
+        },
+        conferenceData: zoomMeeting
+          ? {
+              entryPoints: [
+                {
+                  entryPointType: 'video',
+                  uri: zoomMeeting.joinUrl,
+                  label: 'Zoom Meeting',
+                },
+              ],
+              conferenceSolution: {
+                name: 'Zoom Meeting',
+                iconUri: 'https://zoom.us/favicon.ico',
               },
-            ],
-            conferenceSolution: {
-              name: 'Zoom Meeting',
-              iconUri: 'https://zoom.us/favicon.ico',
-            },
-          }
-        : undefined,
-      guestsCanModify: false,
-      guestsCanInviteOthers: false,
-      guestsCanSeeOtherGuests: false,
-    }
+            }
+          : undefined,
+        guestsCanModify: false,
+        guestsCanInviteOthers: false,
+        guestsCanSeeOtherGuests: false,
+      }
 
-    const response = await calendar.events.insert({
-      calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
-      requestBody: event,
-      sendUpdates: 'none', // We'll send our own custom emails
-      conferenceDataVersion: zoomMeeting ? 1 : 0,
-    })
+      try {
+        const response = await calendar.events.insert({
+          calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
+          requestBody: event,
+          sendUpdates: 'none', // We'll send our own custom emails
+          conferenceDataVersion: zoomMeeting ? 1 : 0,
+        })
+        calendarEventId = response.data.id
+        calendarEventLink = response.data.htmlLink
+      } catch (calendarError) {
+        console.error('Google Calendar error (continuing without calendar):', calendarError)
+      }
+    }
 
     // Format time slot for emails
     const timeSlot = format(startTime, 'h:mm a')
 
-    // Prepare email template data
+    // Prepare email template data (use PMI link, or Zoom API link if available)
     const emailData = {
       firstName,
       date: startTime,
       timeSlot,
       timezone: 'EST',
-      zoomLink: zoomMeeting?.joinUrl || 'TBD',
+      zoomLink: zoomMeeting?.joinUrl || ZOOM_PMI_LINK,
       rescheduleLink: RESCHEDULE_LINK,
       yourName: YOUR_NAME
     }
@@ -226,8 +242,8 @@ Action Required: Please reply to the confirmation email with:
 
     return NextResponse.json({
       success: true,
-      eventId: response.data.id,
-      eventLink: response.data.htmlLink,
+      eventId: calendarEventId,
+      eventLink: calendarEventLink,
       zoomLink: zoomMeeting?.joinUrl,
       message: 'Booking confirmed! Check your email for confirmation and Zoom link.',
     })

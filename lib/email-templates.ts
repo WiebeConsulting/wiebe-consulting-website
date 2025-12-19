@@ -8,6 +8,37 @@ interface EmailTemplateProps {
   zoomLink: string
   rescheduleLink?: string
   yourName?: string
+  calendarLink?: string
+}
+
+// Generate Google Calendar link
+function generateCalendarLink({
+  title,
+  date,
+  durationMinutes,
+  description,
+  location
+}: {
+  title: string
+  date: Date
+  durationMinutes: number
+  description: string
+  location: string
+}): string {
+  const startTime = date.toISOString().replace(/-|:|\.\d{3}/g, '')
+  const endDate = new Date(date.getTime() + durationMinutes * 60000)
+  const endTime = endDate.toISOString().replace(/-|:|\.\d{3}/g, '')
+
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: title,
+    dates: `${startTime}/${endTime}`,
+    details: description,
+    location: location,
+    ctz: 'America/New_York'
+  })
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`
 }
 
 export const emailTemplates = {
@@ -20,9 +51,28 @@ export const emailTemplates = {
     zoomLink,
     rescheduleLink = '#',
     yourName = 'Ben Wiebe'
-  }: EmailTemplateProps) => ({
-    subject: `You're booked: Revenue & Retention Gameplan on ${format(date, 'EEEE')}`,
-    html: `
+  }: EmailTemplateProps) => {
+    const hasZoomLink = zoomLink && zoomLink !== 'TBD'
+    const zoomDisplay = hasZoomLink ? zoomLink : 'Zoom link will be sent before the call'
+
+    const calendarLink = generateCalendarLink({
+      title: 'Revenue & Retention Gameplan Call - Wiebe Consulting',
+      date,
+      durationMinutes: 15,
+      description: `15-minute Revenue & Retention Gameplan Call with ${yourName}
+
+On this call we'll:
+- Get a rough picture of your no-shows, drop-offs, and lapsed patients
+- Estimate how much additional revenue is sitting in your EMR
+- See if the 60-Day Sports PT Revenue & Retention Sprint makes sense for your clinic${hasZoomLink ? `
+
+Zoom Link: ${zoomLink}` : ''}`,
+      location: hasZoomLink ? zoomLink : 'Zoom (link will be sent before the call)'
+    })
+
+    return {
+      subject: `You're booked: Revenue & Retention Gameplan on ${format(date, 'EEEE')}`,
+      html: `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b;">
         <p style="font-size: 16px; line-height: 1.6;">Hey ${firstName},</p>
 
@@ -31,7 +81,11 @@ export const emailTemplates = {
         <div style="background: #f8fafc; border-left: 4px solid #0ea5e9; padding: 20px; margin: 24px 0;">
           <p style="margin: 8px 0;"><strong>When:</strong> ${format(date, 'EEEE, MMMM d, yyyy')} at ${timeSlot} ${timezone}</p>
           <p style="margin: 8px 0;"><strong>Who:</strong> ${yourName}</p>
-          <p style="margin: 8px 0;"><strong>Where:</strong> Zoom – <a href="${zoomLink}" style="color: #0ea5e9; text-decoration: none;">${zoomLink}</a></p>
+          <p style="margin: 8px 0;"><strong>Where:</strong> ${hasZoomLink ? `Zoom – <a href="${zoomLink}" style="color: #0ea5e9; text-decoration: none;">${zoomLink}</a>` : 'Zoom (link will be sent before the call)'}</p>
+        </div>
+
+        <div style="text-align: center; margin: 24px 0;">
+          <a href="${calendarLink}" style="display: inline-block; background: linear-gradient(135deg, #0ea5e9 0%, #a855f7 100%); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">📅 Add to Calendar</a>
         </div>
 
         <p style="font-size: 16px; line-height: 1.6;"><strong>On this call we'll:</strong></p>
@@ -49,13 +103,15 @@ export const emailTemplates = {
         <p style="font-size: 12px; color: #64748b; line-height: 1.5;">This is an automated reminder from Wiebe Consulting's scheduling system.</p>
       </div>
     `,
-    text: `Hey ${firstName},
+      text: `Hey ${firstName},
 
 You're all set for your 15‑minute Revenue & Retention Gameplan Call.
 
 When: ${format(date, 'EEEE, MMMM d, yyyy')} at ${timeSlot} ${timezone}
 Who: ${yourName}
-Where: Zoom – ${zoomLink}
+Where: ${zoomDisplay}
+
+Add to Calendar: ${calendarLink}
 
 On this call we'll:
 - Get a rough picture of your no‑shows, drop‑offs, and lapsed patients
@@ -69,7 +125,8 @@ ${yourName}
 
 ---
 This is an automated reminder from Wiebe Consulting's scheduling system.`
-  }),
+    }
+  },
 
   // 2) 3 days before – light homework + value
   threeDaysBefore: ({

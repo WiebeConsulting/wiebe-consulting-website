@@ -1,6 +1,13 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Initialize Resend only when API key is available (not during build)
+const getResendClient = () => {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('RESEND_API_KEY not configured')
+    return null
+  }
+  return new Resend(process.env.RESEND_API_KEY)
+}
 
 interface SendEmailParams {
   to: string
@@ -20,6 +27,12 @@ export async function sendEmail({
   replyTo = process.env.EMAIL_REPLY_TO || 'ben@wiebe-consulting.com'
 }: SendEmailParams) {
   try {
+    const resend = getResendClient()
+    if (!resend) {
+      console.warn('Email not sent - Resend not configured')
+      return { success: false, error: 'Resend not configured' }
+    }
+
     const data = await resend.emails.send({
       from,
       to,
@@ -51,6 +64,12 @@ export async function scheduleEmail({
   replyTo
 }: ScheduleEmailParams) {
   try {
+    const resend = getResendClient()
+    if (!resend) {
+      console.warn('Email not scheduled - Resend not configured')
+      return { success: false, error: 'Resend not configured' }
+    }
+
     // Resend supports scheduled emails via their API
     const data = await resend.emails.send({
       from: from || process.env.EMAIL_FROM || 'Ben Wiebe <ben@wiebe-consulting.com>',

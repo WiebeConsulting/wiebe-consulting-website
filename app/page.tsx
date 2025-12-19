@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { analytics } from '@/lib/analytics'
 import HeroSection from '@/components/HeroSection'
 import ProblemSection from '@/components/ProblemSection'
 import SystemSection from '@/components/SystemSection'
@@ -18,22 +19,27 @@ import BookingModal from '@/components/BookingModal'
 export default function Home() {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
 
+  const handleBookingClick = (source: string) => {
+    analytics.bookingModalOpened(source)
+    setIsBookingModalOpen(true)
+  }
+
   return (
     <main className="min-h-screen bg-white dark:bg-slate-950">
       <div className="grid-background fixed inset-0 -z-10" />
 
-      <Navbar onBookingClick={() => setIsBookingModalOpen(true)} />
+      <Navbar onBookingClick={() => handleBookingClick('navbar')} />
 
-      <HeroSection onBookingClick={() => setIsBookingModalOpen(true)} />
+      <HeroSection onBookingClick={() => handleBookingClick('hero')} />
       <ProblemSection />
       <SystemSection />
       <ProcessSection />
       <QualificationSection />
-      <PricingSection onBookingClick={() => setIsBookingModalOpen(true)} />
+      <PricingSection onBookingClick={() => handleBookingClick('pricing')} />
       <RequirementsSection />
       <AboutSection />
       <FAQSection />
-      <CTASection onBookingClick={() => setIsBookingModalOpen(true)} />
+      <CTASection onBookingClick={() => handleBookingClick('cta_section')} />
 
       <Footer />
 

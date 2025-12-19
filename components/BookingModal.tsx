@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { format, addDays, startOfWeek, addWeeks, isSameDay, parseISO } from 'date-fns'
+import { analytics } from '@/lib/analytics'
 
 interface BookingModalProps {
   isOpen: boolean
@@ -118,6 +119,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
     if (isDateAvailable(date) && date >= new Date()) {
       setSelectedDate(date)
       setSelectedTime(null)
+      analytics.dateSelected(format(date, 'yyyy-MM-dd'))
     }
   }
 
@@ -125,6 +127,8 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
     if (slot.available) {
       setSelectedTime(slot.dateTime)
       setShowForm(true) // Show form after time selection
+      analytics.timeSelected(slot.time)
+      analytics.formStarted()
     }
   }
 
@@ -157,6 +161,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
 
       const result = await response.json()
       setShowConfirmation(true)
+      analytics.bookingConfirmed(selectedTime || '')
 
       // Reset form after 5 seconds
       setTimeout(() => {
@@ -167,6 +172,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
 
     } catch (error) {
       console.error('Error booking appointment:', error)
+      analytics.bookingFailed(error instanceof Error ? error.message : 'Unknown error')
       alert('There was an error booking your appointment. Please try again or contact us directly.')
     } finally {
       setSubmitting(false)
