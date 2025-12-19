@@ -23,7 +23,7 @@ export default async function Image() {
           position: 'relative',
           backgroundImage: 'url(https://wiebe-consulting.com/og-background.png)',
           backgroundSize: 'contain',
-          backgroundPosition: 'center',
+          backgroundPosition: 'top left',
           backgroundRepeat: 'no-repeat',
           backgroundColor: '#0f172a',
         }}
