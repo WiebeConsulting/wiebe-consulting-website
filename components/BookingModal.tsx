@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
-import { format, addDays, startOfWeek, addWeeks, isSameDay, parseISO } from 'date-fns'
+import { format, addDays, startOfWeek, addWeeks, isSameDay } from 'date-fns'
 import { analytics, getUTMParams } from '@/lib/analytics'
 
 interface BookingModalProps {

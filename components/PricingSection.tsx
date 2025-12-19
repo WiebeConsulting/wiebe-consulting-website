@@ -54,15 +54,15 @@ export default function PricingSection({ onBookingClick }: PricingSectionProps) 
                   <span className="text-slate-700 dark:text-slate-300">If not, <span className="font-bold">pay nothing</span> and keep the system</span>
                 </li>
               </ul>
-              <motion.a
-                href="#"
+              <motion.button
+                onClick={onBookingClick}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="w-full inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
               >
                 <span>Claim Your Spot</span>
                 <ArrowRight className="w-5 h-5" />
-              </motion.a>
+              </motion.button>
             </div>
           </motion.div>
 
@@ -92,15 +92,15 @@ export default function PricingSection({ onBookingClick }: PricingSectionProps) 
                 <span className="text-slate-700 dark:text-slate-300">If we don't hit targets, <span className="font-bold">you don't pay the second $5,000</span></span>
               </li>
             </ul>
-            <motion.a
-              href="#"
+            <motion.button
+              onClick={onBookingClick}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="w-full inline-flex items-center justify-center gap-2 px-8 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
             >
               <span>Learn More</span>
               <ArrowRight className="w-5 h-5" />
-            </motion.a>
+            </motion.button>
           </motion.div>
         </div>
       </div>

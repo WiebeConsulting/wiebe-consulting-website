@@ -193,33 +193,6 @@ export const analytics = {
     })
   },
 
-  // Email link clicks
-  clickEmail: (emailAddress: string, location: string) => {
-    trackEvent('click_email', {
-      event_category: 'engagement',
-      email_address: emailAddress,
-      click_location: location
-    })
-  },
-
-  // Phone link clicks
-  clickPhone: (phoneNumber: string, location: string) => {
-    trackEvent('click_phone', {
-      event_category: 'engagement',
-      phone_number: phoneNumber,
-      click_location: location
-    })
-  },
-
-  // File downloads
-  fileDownload: (fileName: string, fileType: string) => {
-    trackEvent('file_download', {
-      event_category: 'engagement',
-      file_name: fileName,
-      file_type: fileType
-    })
-  },
-
   // ---- BOOKING FUNNEL EVENTS ----
 
   bookingModalOpened: (source: string) => {
@@ -256,13 +229,6 @@ export const analytics = {
     trackEvent('form_started', {
       event_category: 'booking_funnel',
       funnel_step: 4
-    })
-  },
-
-  formFieldCompleted: (fieldName: string) => {
-    trackEvent('form_field_completed', {
-      event_category: 'booking_funnel',
-      field_name: fieldName
     })
   },
 
@@ -307,45 +273,4 @@ export const analytics = {
     })
   },
 
-  // ---- PAGE & SECTION ENGAGEMENT ----
-
-  pageView: (pageName: string) => {
-    trackEvent('page_view', {
-      event_category: 'engagement',
-      page_name: pageName
-    })
-  },
-
-  sectionViewed: (sectionName: string, percentViewed: number) => {
-    trackEvent('section_viewed', {
-      event_category: 'engagement',
-      section_name: sectionName,
-      percent_viewed: percentViewed
-    })
-  },
-
-  scrollDepth: (percentage: number) => {
-    trackEvent('scroll_depth', {
-      event_category: 'engagement',
-      scroll_percentage: percentage
-    })
-  },
-
-  // ---- VIDEO ENGAGEMENT (if you add videos) ----
-
-  videoPlay: (videoName: string, videoUrl: string) => {
-    trackEvent('video_play', {
-      event_category: 'engagement',
-      video_name: videoName,
-      video_url: videoUrl
-    })
-  },
-
-  videoComplete: (videoName: string, watchTime: number) => {
-    trackEvent('video_complete', {
-      event_category: 'engagement',
-      video_name: videoName,
-      watch_time_seconds: watchTime
-    })
-  }
 }
