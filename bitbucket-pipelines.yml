@@ -1,0 +1,41 @@
+image: node:20
+
+pipelines:
+  # Manual trigger - run anytime from Bitbucket UI
+  custom:
+    generate-blog:
+      - step:
+          name: Generate Weekly Blog Post
+          caches:
+            - node
+          script:
+            - npm ci
+            - node scripts/generate-blog.js
+          artifacts:
+            - content/blog/drafts/**
+            - public/blog/**
+
+  # Scheduled - runs every Monday at 9 AM EST (14:00 UTC)
+  schedules:
+    - cron: "0 14 * * 1"
+      branches:
+        include:
+          - main
+      steps:
+        - step:
+            name: Weekly Blog Generation
+            caches:
+              - node
+            script:
+              - npm ci
+              - node scripts/generate-blog.js
+              # Commit and push the new blog draft
+              - git config user.email "pipeline@wiebe-consulting.com"
+              - git config user.name "Bitbucket Pipeline"
+              - git add content/blog/drafts/ public/blog/
+              - git diff --staged --quiet || git commit -m "Add weekly blog post draft"
+              - git push origin main
+
+definitions:
+  caches:
+    node: node_modules
