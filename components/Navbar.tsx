@@ -12,6 +12,28 @@ interface NavbarProps {
 
 export default function Navbar({ onBookingClick }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState(false)
+
+  useEffect(() => {
+    // Check initial theme
+    const checkTheme = () => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'))
+    }
+    checkTheme()
+
+    // Watch for theme changes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          checkTheme()
+        }
+      })
+    })
+
+    observer.observe(document.documentElement, { attributes: true })
+
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     if (mobileMenuOpen) {
@@ -42,10 +64,10 @@ export default function Navbar({ onBookingClick }: NavbarProps) {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          {/* Logo */}
+          {/* Logo - switches based on theme */}
           <a href="#hero" className="flex items-center space-x-3">
             <Image
-              src="/logo.png"
+              src={isDarkMode ? "/logo-dark.png" : "/logo.png"}
               alt="Wiebe Consulting"
               width={180}
               height={45}
