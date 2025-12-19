@@ -160,6 +160,175 @@ Only respond with the JSON, no other text.`,
   }
 }
 
+// SEO, quality, and fact-checking validation
+async function validateAndOptimizePost(post) {
+  console.log('🔍 Running SEO optimization and quality validation...')
+
+  const response = await anthropic.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 5000,
+    messages: [
+      {
+        role: 'user',
+        content: `You are a senior editor and SEO specialist. Review and improve this blog post for a B2B consulting company targeting physical therapy clinic owners.
+
+CURRENT POST:
+Title: "${post.title}"
+Description: "${post.description}"
+Tags: ${JSON.stringify(post.tags)}
+
+Content:
+${post.content}
+
+PERFORM THESE CHECKS AND IMPROVEMENTS:
+
+1. SEO OPTIMIZATION:
+   - Title: Must be 50-60 characters, include primary keyword, be compelling for clicks
+   - Meta description: Must be 150-160 characters, include call-to-action, summarize value
+   - Ensure H2/H3 headings include relevant keywords naturally
+   - Check keyword density is appropriate (not stuffed)
+   - Ensure the first paragraph contains the main keyword
+
+2. FACT VALIDATION:
+   - Verify all statistics and numbers are realistic and industry-standard
+   - If any claims seem exaggerated or unverifiable, adjust to conservative, defensible figures
+   - Ensure medical/healthcare claims are accurate and don't make promises that could be problematic
+   - Remove or revise any dubious statistics
+
+3. GRAMMAR & PROFESSIONALISM:
+   - Fix ALL grammar, spelling, and punctuation errors
+   - Ensure consistent tone throughout (professional but approachable)
+   - Remove any awkward phrasing or redundancies
+   - Ensure proper capitalization and formatting
+
+4. CONVERSION OPTIMIZATION:
+   - Ensure clear value proposition in the introduction
+   - Add subtle conversion hooks without being salesy
+   - Strong conclusion with clear next step/takeaway
+   - Include social proof elements where appropriate
+
+5. CONTENT QUALITY:
+   - Ensure logical flow between sections
+   - Verify all advice is actionable and specific
+   - Remove any filler content
+   - Ensure examples are realistic and relatable
+
+Respond with the IMPROVED version in this exact JSON format:
+{
+  "title": "Optimized SEO title (50-60 chars)",
+  "description": "Optimized meta description (150-160 chars)",
+  "content": "The fully corrected and optimized markdown content",
+  "tags": ["optimized", "seo", "tags"],
+  "changes_made": ["List of significant changes you made"],
+  "seo_score": "A brief assessment: Excellent/Good/Needs Work",
+  "quality_score": "A brief assessment: Excellent/Good/Needs Work"
+}
+
+Only respond with the JSON, no other text.`,
+      },
+    ],
+  })
+
+  const text = response.content[0].type === 'text' ? response.content[0].text : ''
+  const jsonMatch = text.match(/\{[\s\S]*\}/)
+  if (!jsonMatch) {
+    console.log('⚠️ Validation returned non-JSON, using original post')
+    return post
+  }
+
+  try {
+    const validated = JSON.parse(jsonMatch[0])
+
+    console.log(`📊 SEO Score: ${validated.seo_score}`)
+    console.log(`📊 Quality Score: ${validated.quality_score}`)
+    console.log(`📝 Changes made:`)
+    validated.changes_made.forEach((change) => console.log(`   - ${change}`))
+
+    // Update slug if title changed significantly
+    const newSlug = validated.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')
+      .slice(0, 60)
+
+    return {
+      title: validated.title,
+      description: validated.description,
+      content: validated.content,
+      tags: validated.tags,
+      slug: newSlug,
+      seoScore: validated.seo_score,
+      qualityScore: validated.quality_score,
+      changesMade: validated.changes_made,
+    }
+  } catch (error) {
+    console.log('⚠️ Failed to parse validation response, using original post')
+    return post
+  }
+}
+
+// Final grammar and style check
+async function finalProofread(post) {
+  console.log('✏️ Running final proofread...')
+
+  const response = await anthropic.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 5000,
+    messages: [
+      {
+        role: 'user',
+        content: `You are a professional proofreader. Perform a FINAL check on this blog post.
+
+Title: "${post.title}"
+Description: "${post.description}"
+
+Content:
+${post.content}
+
+Check for and fix:
+1. Any remaining grammar or spelling errors
+2. Punctuation issues
+3. Inconsistent formatting
+4. Awkward sentence structures
+5. Missing or extra spaces
+6. Proper use of em-dashes, hyphens, and other punctuation
+
+Return the corrected content in this JSON format:
+{
+  "title": "Proofread title",
+  "description": "Proofread description",
+  "content": "Proofread content with all corrections applied",
+  "corrections_count": 0,
+  "ready_for_publication": true
+}
+
+Only respond with the JSON, no other text.`,
+      },
+    ],
+  })
+
+  const text = response.content[0].type === 'text' ? response.content[0].text : ''
+  const jsonMatch = text.match(/\{[\s\S]*\}/)
+  if (!jsonMatch) {
+    return post
+  }
+
+  try {
+    const proofread = JSON.parse(jsonMatch[0])
+    console.log(`✅ Proofread complete: ${proofread.corrections_count} corrections made`)
+    console.log(`📋 Ready for publication: ${proofread.ready_for_publication ? 'Yes' : 'Needs review'}`)
+
+    return {
+      ...post,
+      title: proofread.title,
+      description: proofread.description,
+      content: proofread.content,
+    }
+  } catch (error) {
+    return post
+  }
+}
+
 async function generateBlogImage(title, slug) {
   console.log('Generating image with DALL-E 3...')
 
@@ -302,36 +471,56 @@ async function sendApprovalEmail(post, imagePath) {
 
 async function main() {
   console.log('🚀 Starting blog post generation...')
+  console.log('━'.repeat(50))
 
   try {
     // 1. Generate topic
-    console.log('📝 Generating topic...')
+    console.log('\n📝 STEP 1: Generating topic...')
     const { topic, category } = await generateBlogTopic()
-    console.log(`Topic: ${topic} (${category})`)
+    console.log(`   Topic: ${topic}`)
+    console.log(`   Category: ${category}`)
 
-    // 2. Generate blog content
-    console.log('✍️ Generating content with Claude...')
-    const post = await generateBlogPost(topic, category)
-    console.log(`Generated: ${post.title}`)
+    // 2. Generate initial blog content
+    console.log('\n✍️ STEP 2: Generating initial content with Claude...')
+    let post = await generateBlogPost(topic, category)
+    console.log(`   Generated: ${post.title}`)
+    console.log(`   Word count: ~${post.content.split(/\s+/).length} words`)
 
-    // 3. Generate featured image
-    console.log('🎨 Generating image with DALL-E...')
+    // 3. SEO optimization and fact validation
+    console.log('\n🔍 STEP 3: SEO optimization & fact validation...')
+    post = await validateAndOptimizePost(post)
+    if (post.seoScore) {
+      console.log(`   SEO Score: ${post.seoScore}`)
+      console.log(`   Quality Score: ${post.qualityScore}`)
+    }
+
+    // 4. Final proofreading
+    console.log('\n✏️ STEP 4: Final proofreading...')
+    post = await finalProofread(post)
+
+    // 5. Generate featured image
+    console.log('\n🎨 STEP 5: Generating image with DALL-E...')
     const imagePath = await generateBlogImage(post.title, post.slug)
-    console.log(`Image saved: ${imagePath}`)
+    console.log(`   Image saved: ${imagePath}`)
 
-    // 4. Save as draft (not published yet)
-    console.log('💾 Saving blog post as draft...')
+    // 6. Save as draft (not published yet)
+    console.log('\n💾 STEP 6: Saving blog post as draft...')
     const slug = await saveBlogPostAsDraft(post, imagePath)
-    console.log(`Draft saved: ${slug}`)
+    console.log(`   Draft saved: ${slug}`)
 
-    // 5. Send approval email
-    console.log('📧 Sending approval email...')
+    // 7. Send approval email
+    console.log('\n📧 STEP 7: Sending approval email...')
     await sendApprovalEmail(post, imagePath)
 
-    console.log('✅ Blog post draft created and approval email sent!')
-    console.log(`Approval URL: https://wiebe-consulting.com/api/blog/approve?slug=${slug}&action=approve`)
+    console.log('\n' + '━'.repeat(50))
+    console.log('✅ BLOG POST GENERATION COMPLETE!')
+    console.log('━'.repeat(50))
+    console.log(`\n📌 Title: ${post.title}`)
+    console.log(`📝 Description: ${post.description}`)
+    console.log(`🔗 Approval URL: https://wiebe-consulting.com/api/blog/approve?slug=${slug}&action=approve`)
+    console.log('\n⏳ Awaiting your approval before publishing.')
   } catch (error) {
-    console.error('❌ Error generating blog post:', error)
+    console.error('\n❌ Error generating blog post:', error)
     process.exit(1)
   }
 }
