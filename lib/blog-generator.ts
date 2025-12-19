@@ -4,13 +4,18 @@ import fs from 'fs'
 import path from 'path'
 import sharp from 'sharp'
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-})
+// Lazy-load clients to avoid build-time errors
+function getAnthropicClient() {
+  return new Anthropic({
+    apiKey: process.env.ANTHROPIC_API_KEY,
+  })
+}
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+function getOpenAIClient() {
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  })
+}
 
 // Topics pool for PT clinic content
 const TOPIC_TEMPLATES = [
@@ -75,6 +80,7 @@ export async function generateBlogTopic(): Promise<{ topic: string; category: st
   const topicBase = category.prompts[Math.floor(Math.random() * category.prompts.length)]
 
   // Use Claude to refine the topic based on current trends
+  const anthropic = getAnthropicClient()
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-20250514',
     max_tokens: 500,
@@ -103,6 +109,7 @@ Respond with ONLY the title, nothing else.`,
 }
 
 export async function generateBlogPost(topic: string, category: string): Promise<GeneratedBlogPost> {
+  const anthropic = getAnthropicClient()
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-20250514',
     max_tokens: 4000,
@@ -167,6 +174,7 @@ Only respond with the JSON, no other text.`,
 
 export async function generateBlogImage(title: string, slug: string): Promise<string> {
   // Generate image with DALL-E 3
+  const openai = getOpenAIClient()
   const response = await openai.images.generate({
     model: 'dall-e-3',
     prompt: `Create a professional blog header image for an article titled "${title}".
