@@ -101,7 +101,124 @@ Respond with ONLY the title, nothing else.`,
   return { topic, category: category.category }
 }
 
-async function generateBlogPost(topic, category) {
+// Deep research to find real statistics and data
+async function conductResearch(topic, category) {
+  console.log('🔬 Conducting deep research for real statistics...')
+
+  const response = await anthropic.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 3000,
+    messages: [
+      {
+        role: 'user',
+        content: `You are a healthcare research analyst. Find REAL, VERIFIABLE statistics and data related to this topic for a physical therapy clinic blog post:
+
+Topic: "${topic}"
+Category: ${category}
+
+Research and provide:
+
+1. INDUSTRY STATISTICS (must be from reputable sources):
+   - No-show rates in healthcare/PT (cite MGMA, APTA, or peer-reviewed studies)
+   - Patient retention statistics
+   - Revenue impact data
+   - Treatment outcome correlations
+
+2. VERIFIABLE FACTS:
+   - Only include statistics that can be traced to real organizations
+   - Include the source name for each statistic
+   - Use conservative estimates when ranges exist
+   - Prefer data from: APTA, MGMA, CMS, peer-reviewed journals, industry surveys
+
+3. REALISTIC BENCHMARKS:
+   - What improvements are actually achievable?
+   - What timeframes are realistic?
+   - What do studies actually show?
+
+IMPORTANT RULES:
+- Do NOT make up statistics
+- Do NOT use specific percentages unless from a real source
+- Use ranges when exact figures aren't available (e.g., "studies suggest 15-20%")
+- Say "industry reports indicate" or "research suggests" for general trends
+- If you're unsure about a statistic, indicate that it needs verification
+
+Format your response as JSON:
+{
+  "verified_statistics": [
+    {
+      "stat": "The statistic",
+      "source": "Source name/organization",
+      "confidence": "high/medium/low",
+      "notes": "Any caveats"
+    }
+  ],
+  "industry_benchmarks": {
+    "typical_no_show_rate": "X-Y%",
+    "realistic_improvement": "X-Y% over Z months",
+    "average_session_value": "$X-Y range"
+  },
+  "safe_claims": [
+    "Claims that are defensible and backed by general industry knowledge"
+  ],
+  "claims_to_avoid": [
+    "Specific claims that should NOT be made without verification"
+  ],
+  "recommended_framing": "How to present data conservatively and professionally"
+}
+
+Only respond with the JSON, no other text.`,
+      },
+    ],
+  })
+
+  const text = response.content[0].type === 'text' ? response.content[0].text : ''
+  const jsonMatch = text.match(/\{[\s\S]*\}/)
+
+  if (!jsonMatch) {
+    console.log('⚠️ Research returned non-JSON, using conservative defaults')
+    return {
+      verified_statistics: [],
+      industry_benchmarks: {
+        typical_no_show_rate: '10-20%',
+        realistic_improvement: '15-25% over 3-6 months',
+        average_session_value: '$100-150',
+      },
+      safe_claims: [
+        'No-show rates vary by practice but commonly range from 10-20%',
+        'Consistent reminder systems can help reduce missed appointments',
+        'Patient engagement correlates with better treatment outcomes',
+      ],
+      claims_to_avoid: [
+        'Specific percentage guarantees',
+        'Exact revenue figures without context',
+        'Timeframes shorter than 60 days',
+      ],
+      recommended_framing: 'Use conservative language like "can help reduce" rather than "will reduce by X%"',
+    }
+  }
+
+  try {
+    const research = JSON.parse(jsonMatch[0])
+    console.log(`   Found ${research.verified_statistics?.length || 0} verified statistics`)
+    console.log(`   Identified ${research.claims_to_avoid?.length || 0} claims to avoid`)
+    return research
+  } catch (error) {
+    console.log('⚠️ Failed to parse research, using conservative defaults')
+    return {
+      verified_statistics: [],
+      industry_benchmarks: {
+        typical_no_show_rate: '10-20%',
+        realistic_improvement: '15-25% over 3-6 months',
+        average_session_value: '$100-150',
+      },
+      safe_claims: [],
+      claims_to_avoid: [],
+      recommended_framing: 'Use conservative, defensible language throughout',
+    }
+  }
+}
+
+async function generateBlogPost(topic, category, research) {
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-20250514',
     max_tokens: 4000,
@@ -112,6 +229,19 @@ async function generateBlogPost(topic, category) {
 
 Write a comprehensive, authoritative blog post on the topic: "${topic}"
 
+IMPORTANT - USE THIS RESEARCH DATA:
+${JSON.stringify(research, null, 2)}
+
+CRITICAL RULES FOR STATISTICS AND CLAIMS:
+1. ONLY use statistics from the "verified_statistics" list above
+2. Use the "industry_benchmarks" for any numbers you cite
+3. Follow the "recommended_framing" guidance
+4. AVOID all claims listed in "claims_to_avoid"
+5. When citing a statistic, mention it's from industry research/studies
+6. Use conservative language: "can help," "typically," "research suggests"
+7. NEVER claim specific percentage improvements without verified source
+8. NEVER use timeframes shorter than 60-90 days for measurable results
+
 Requirements:
 1. Length: 1,000-1,500 words
 2. Tone: Professional but approachable, expert-driven, B2B focused
@@ -119,7 +249,7 @@ Requirements:
    - Compelling introduction that hooks the reader with a relatable problem
    - Clear subheadings (use ## for H2, ### for H3)
    - Practical, actionable advice
-   - Specific numbers, statistics, or examples when possible
+   - Use ONLY the verified statistics provided above
    - A conclusion with a clear takeaway
 4. Include real-world scenarios PT clinic owners face
 5. Subtly position Wiebe Consulting's services as a solution (don't be salesy)
@@ -127,10 +257,11 @@ Requirements:
 
 Format your response as JSON with this structure:
 {
-  "title": "The blog post title",
+  "title": "The blog post title (NO specific percentages in title unless verified)",
   "description": "A 150-160 character meta description for SEO",
   "content": "The full markdown content of the blog post",
-  "tags": ["tag1", "tag2", "tag3"]
+  "tags": ["tag1", "tag2", "tag3"],
+  "sources_used": ["List of sources/statistics used from the research"]
 }
 
 Only respond with the JSON, no other text.`,
@@ -151,12 +282,15 @@ Only respond with the JSON, no other text.`,
     .replace(/^-|-$/g, '')
     .slice(0, 60)
 
+  console.log(`   Sources used: ${parsed.sources_used?.join(', ') || 'None specified'}`)
+
   return {
     title: parsed.title,
     description: parsed.description,
     content: parsed.content,
     tags: parsed.tags,
     slug,
+    sourcesUsed: parsed.sources_used,
   }
 }
 
@@ -480,36 +614,40 @@ async function main() {
     console.log(`   Topic: ${topic}`)
     console.log(`   Category: ${category}`)
 
-    // 2. Generate initial blog content
-    console.log('\n✍️ STEP 2: Generating initial content with Claude...')
-    let post = await generateBlogPost(topic, category)
+    // 2. Deep research for real statistics
+    console.log('\n🔬 STEP 2: Conducting deep research...')
+    const research = await conductResearch(topic, category)
+
+    // 3. Generate blog content using research
+    console.log('\n✍️ STEP 3: Generating content with verified data...')
+    let post = await generateBlogPost(topic, category, research)
     console.log(`   Generated: ${post.title}`)
     console.log(`   Word count: ~${post.content.split(/\s+/).length} words`)
 
-    // 3. SEO optimization and fact validation
-    console.log('\n🔍 STEP 3: SEO optimization & fact validation...')
+    // 4. SEO optimization and fact validation
+    console.log('\n🔍 STEP 4: SEO optimization & fact validation...')
     post = await validateAndOptimizePost(post)
     if (post.seoScore) {
       console.log(`   SEO Score: ${post.seoScore}`)
       console.log(`   Quality Score: ${post.qualityScore}`)
     }
 
-    // 4. Final proofreading
-    console.log('\n✏️ STEP 4: Final proofreading...')
+    // 5. Final proofreading
+    console.log('\n✏️ STEP 5: Final proofreading...')
     post = await finalProofread(post)
 
-    // 5. Generate featured image
-    console.log('\n🎨 STEP 5: Generating image with DALL-E...')
+    // 6. Generate featured image
+    console.log('\n🎨 STEP 6: Generating image with DALL-E...')
     const imagePath = await generateBlogImage(post.title, post.slug)
     console.log(`   Image saved: ${imagePath}`)
 
-    // 6. Save as draft (not published yet)
-    console.log('\n💾 STEP 6: Saving blog post as draft...')
+    // 7. Save as draft (not published yet)
+    console.log('\n💾 STEP 7: Saving blog post as draft...')
     const slug = await saveBlogPostAsDraft(post, imagePath)
     console.log(`   Draft saved: ${slug}`)
 
-    // 7. Send approval email
-    console.log('\n📧 STEP 7: Sending approval email...')
+    // 8. Send approval email
+    console.log('\n📧 STEP 8: Sending approval email...')
     await sendApprovalEmail(post, imagePath)
 
     console.log('\n' + '━'.repeat(50))
@@ -517,6 +655,9 @@ async function main() {
     console.log('━'.repeat(50))
     console.log(`\n📌 Title: ${post.title}`)
     console.log(`📝 Description: ${post.description}`)
+    if (post.sourcesUsed && post.sourcesUsed.length > 0) {
+      console.log(`📊 Sources: ${post.sourcesUsed.join(', ')}`)
+    }
     console.log(`🔗 Approval URL: https://wiebe-consulting.com/api/blog/approve?slug=${slug}&action=approve`)
     console.log('\n⏳ Awaiting your approval before publishing.')
   } catch (error) {
