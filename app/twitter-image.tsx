@@ -20,42 +20,35 @@ export default async function Image() {
           flexDirection: 'column',
           justifyContent: 'center',
           padding: '60px 80px',
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
           position: 'relative',
+          backgroundImage: 'url(https://wiebe-consulting.com/og-background.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         }}
       >
-        {/* Gradient orbs */}
+        {/* Dark overlay for text readability */}
         <div
           style={{
             position: 'absolute',
-            width: '400px',
-            height: '400px',
-            background: 'radial-gradient(circle, rgba(14, 165, 233, 0.3) 0%, transparent 70%)',
-            top: '-100px',
-            left: '-100px',
-            borderRadius: '50%',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            width: '500px',
-            height: '500px',
-            background: 'radial-gradient(circle, rgba(168, 85, 247, 0.25) 0%, transparent 70%)',
-            bottom: '-150px',
-            right: '-100px',
-            borderRadius: '50%',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(15, 23, 42, 0.6)',
           }}
         />
 
         {/* Logo */}
         <div
           style={{
-            fontSize: '24px',
+            fontSize: '26px',
             fontWeight: 700,
             color: '#0ea5e9',
-            marginBottom: '40px',
-            letterSpacing: '-0.5px',
+            marginBottom: '32px',
+            letterSpacing: '2px',
+            position: 'relative',
+            zIndex: 10,
+            textShadow: '0 2px 10px rgba(0,0,0,0.5)',
           }}
         >
           WIEBE CONSULTING
@@ -64,22 +57,25 @@ export default async function Image() {
         {/* Headline */}
         <div
           style={{
-            fontSize: '72px',
+            fontSize: '76px',
             fontWeight: 800,
             color: 'white',
             lineHeight: 1.1,
-            marginBottom: '24px',
+            marginBottom: '20px',
             letterSpacing: '-2px',
             display: 'flex',
             flexWrap: 'wrap',
+            position: 'relative',
+            zIndex: 10,
+            textShadow: '0 4px 20px rgba(0,0,0,0.5)',
           }}
         >
           <span>Add </span>
           <span
             style={{
-              background: 'linear-gradient(135deg, #0ea5e9 0%, #a855f7 100%)',
-              backgroundClip: 'text',
-              color: 'transparent',
+              color: '#0ea5e9',
+              marginLeft: '16px',
+              marginRight: '16px',
             }}
           >
             $30K+
@@ -90,11 +86,14 @@ export default async function Image() {
         {/* Subheadline */}
         <div
           style={{
-            fontSize: '28px',
-            color: '#94a3b8',
+            fontSize: '30px',
+            color: '#e2e8f0',
             fontWeight: 500,
-            maxWidth: '700px',
+            maxWidth: '800px',
             lineHeight: 1.4,
+            position: 'relative',
+            zIndex: 10,
+            textShadow: '0 2px 10px rgba(0,0,0,0.5)',
           }}
         >
           Revenue & Retention System for Sports PT Clinics
@@ -104,14 +103,16 @@ export default async function Image() {
         <div
           style={{
             position: 'absolute',
-            bottom: '60px',
-            right: '80px',
+            bottom: '50px',
+            right: '60px',
             background: 'linear-gradient(135deg, #0ea5e9 0%, #a855f7 100%)',
             color: 'white',
-            padding: '16px 32px',
-            borderRadius: '12px',
-            fontSize: '18px',
+            padding: '18px 36px',
+            borderRadius: '14px',
+            fontSize: '20px',
             fontWeight: 700,
+            zIndex: 10,
+            boxShadow: '0 4px 20px rgba(14, 165, 233, 0.4)',
           }}
         >
           Book a Fit Call →
