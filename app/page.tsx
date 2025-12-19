@@ -20,6 +20,7 @@ export default function Home() {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
 
   const handleBookingClick = (source: string) => {
+    analytics.clickBookCall(source, 'Book A 15-Minute Fit Call')
     analytics.bookingModalOpened(source)
     setIsBookingModalOpen(true)
   }

@@ -76,7 +76,22 @@ async function createZoomMeeting(firstName: string, lastName: string, startTime:
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { dateTime, firstName, lastName, email, clinicName, phone } = body
+    const {
+      dateTime,
+      firstName,
+      lastName,
+      email,
+      clinicName,
+      phone,
+      // UTM tracking data
+      utm_source,
+      utm_medium,
+      utm_campaign,
+      utm_term,
+      utm_content,
+      first_touch_landing_page,
+      first_touch_referrer
+    } = body
 
     // Validate required fields
     if (!dateTime || !firstName || !lastName || !email || !clinicName || !phone) {
@@ -85,6 +100,18 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Log lead source for analytics
+    console.log('New booking lead:', {
+      clinicName,
+      email,
+      utm_source: utm_source || 'direct',
+      utm_medium: utm_medium || 'none',
+      utm_campaign: utm_campaign || 'none',
+      first_touch_landing_page,
+      first_touch_referrer,
+      booked_at: new Date().toISOString()
+    })
 
     // Parse datetime and create 45-minute event
     const startTime = new Date(dateTime)

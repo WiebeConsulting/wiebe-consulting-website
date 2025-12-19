@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { format, addDays, startOfWeek, addWeeks, isSameDay, parseISO } from 'date-fns'
-import { analytics } from '@/lib/analytics'
+import { analytics, getUTMParams } from '@/lib/analytics'
 
 interface BookingModalProps {
   isOpen: boolean
@@ -124,10 +124,10 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
   }
 
   const handleTimeSelect = (slot: TimeSlot) => {
-    if (slot.available) {
+    if (slot.available && selectedDate) {
       setSelectedTime(slot.dateTime)
       setShowForm(true) // Show form after time selection
-      analytics.timeSelected(slot.time)
+      analytics.timeSelected(slot.time, format(selectedDate, 'yyyy-MM-dd'))
       analytics.formStarted()
     }
   }
@@ -140,6 +140,9 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
     setSubmitting(true)
 
     try {
+      // Get UTM parameters for attribution tracking
+      const utmParams = getUTMParams()
+
       const response = await fetch('/api/calendar/book', {
         method: 'POST',
         headers: {
@@ -152,6 +155,14 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
           email: formData.email,
           clinicName: formData.clinicName,
           phone: formData.phone,
+          // Include UTM tracking data
+          utm_source: utmParams.utm_source,
+          utm_medium: utmParams.utm_medium,
+          utm_campaign: utmParams.utm_campaign,
+          utm_term: utmParams.utm_term,
+          utm_content: utmParams.utm_content,
+          first_touch_landing_page: utmParams.first_touch_landing_page,
+          first_touch_referrer: utmParams.first_touch_referrer,
         }),
       })
 
@@ -161,7 +172,13 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
 
       const result = await response.json()
       setShowConfirmation(true)
-      analytics.bookingConfirmed(selectedTime || '')
+
+      // Track booking with full UTM data (utmParams already defined above)
+      analytics.bookingConfirmed({
+        dateTime: selectedTime || '',
+        clinicName: formData.clinicName,
+        utmParams
+      })
 
       // Reset form after 5 seconds
       setTimeout(() => {
