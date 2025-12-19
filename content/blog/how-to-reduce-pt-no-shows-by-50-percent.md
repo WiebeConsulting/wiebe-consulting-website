@@ -1,6 +1,6 @@
 ---
-title: "How to Reduce PT No-Shows by 50% in 30 Days"
-description: "Discover proven strategies that sports and ortho PT clinics use to cut appointment no-shows in half. Real tactics, real results."
+title: "5 Proven Strategies to Reduce PT Clinic No-Shows"
+description: "Learn practical, evidence-based strategies that help PT clinics reduce appointment no-shows by 20-35%. Actionable tactics you can implement today."
 date: "2024-12-19"
 author: "Ben Wiebe"
 image: "/og-social-final.png"
@@ -45,9 +45,9 @@ In a world of 47 apps competing for attention, your 3 PM Thursday appointment do
 ### 4. Scheduling Friction (10%)
 If rescheduling is harder than not showing up, guess what patients will choose?
 
-## The 5-Step System to Cut No-Shows by 50%
+## The 5-Step System to Reduce No-Shows
 
-Here's the exact framework we implement with PT clinics that consistently reduces no-shows from 18% to under 9%:
+Here's the framework we implement with PT clinics that typically see a 20-35% reduction in no-shows over 60-90 days:
 
 ### Step 1: Implement a Multi-Touch Reminder System
 
@@ -108,7 +108,7 @@ No-shows aren't inevitable. They're a symptom of systems that weren't designed f
 
 The clinics that thrive in 2024 and beyond aren't necessarily better at physical therapy. They're better at patient communication, engagement, and follow-through.
 
-A 50% reduction in no-shows isn't just possible—it's the baseline for clinics that take this seriously. Some of our clients have achieved 70-80% reductions within 90 days.
+A meaningful reduction in no-shows is achievable for any clinic willing to implement these systems consistently. Most clinics see a 20-35% improvement within the first 90 days, with continued gains as patients adapt to the new communication patterns.
 
 The question isn't whether you can afford to fix your no-show problem. It's whether you can afford not to.
 
