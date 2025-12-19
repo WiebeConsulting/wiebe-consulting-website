@@ -35,20 +35,11 @@ export const metadata: Metadata = {
     siteName: 'Wiebe Consulting',
     title: 'Sports PT Consulting | Add $30K in 60 Days',
     description: 'Done-for-you patient retention system for sports & ortho PT clinics. Cut no-shows, complete more plans, reactivate lapsed patients.',
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'Wiebe Consulting - Sports PT Revenue & Retention System',
-      },
-    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Sports PT Consulting | Add $30K in 60 Days',
     description: 'Done-for-you patient retention system for sports & ortho PT clinics.',
-    images: ['/og-image.png'],
   },
   robots: {
     index: true,
