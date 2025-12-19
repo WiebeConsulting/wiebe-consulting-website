@@ -21,7 +21,7 @@ export default async function Image() {
           alignItems: 'center',
           justifyContent: 'center',
           position: 'relative',
-          backgroundImage: 'url(https://wiebe-consulting.com/og-image.png)',
+          backgroundImage: 'url(https://wiebe-consulting.com/og-bg.png)',
           backgroundSize: '60%',
           backgroundPosition: 'center center',
           backgroundRepeat: 'no-repeat',
