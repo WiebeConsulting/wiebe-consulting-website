@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
-import { format, addDays, startOfWeek, addWeeks, isSameDay } from 'date-fns'
+import { X, Calendar as CalendarIcon, Clock, Loader2 } from 'lucide-react'
+import { format, addDays, startOfWeek, isSameDay } from 'date-fns'
 import { analytics, getUTMParams } from '@/lib/analytics'
 
 interface BookingModalProps {
@@ -26,9 +26,14 @@ interface FormData {
 }
 
 export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
-  const [currentWeek, setCurrentWeek] = useState(new Date())
+  const [currentWeek] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
+
+  // Calculate the max date (2 weeks from today)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const maxDate = addDays(today, 14)
   const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([])
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -48,11 +53,14 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
     return Array.from({ length: 14 }, (_, i) => addDays(start, i))
   }
 
-  // Check if date is available (Sunday-Thursday or Friday before 10am)
+  // Check if date is available (Sunday-Thursday or Friday before 10am, and within 2 weeks)
   const isDateAvailable = (date: Date) => {
     const day = date.getDay()
+    const dateOnly = new Date(date)
+    dateOnly.setHours(0, 0, 0, 0)
     // Sunday=0, Monday=1, Tuesday=2, Wednesday=3, Thursday=4, Friday=5
-    return day >= 0 && day <= 5
+    // Must be within next 2 weeks
+    return day >= 0 && day <= 5 && dateOnly >= today && dateOnly <= maxDate
   }
 
   // Generate time slots for selected date
@@ -116,7 +124,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
   }, [selectedDate])
 
   const handleDateSelect = (date: Date) => {
-    if (isDateAvailable(date) && date >= new Date()) {
+    if (isDateAvailable(date)) {
       setSelectedDate(date)
       setSelectedTime(null)
       analytics.dateSelected(format(date, 'yyyy-MM-dd'))
@@ -233,7 +241,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
           >
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto pointer-events-auto">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden pointer-events-auto">
               {/* Header */}
               <div className="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-6 flex items-center justify-between z-10">
                 <div>
@@ -274,23 +282,11 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                   <div className={showForm ? "grid md:grid-cols-2 gap-8" : "max-w-4xl mx-auto"}>
                     {/* Calendar Section */}
                     <div className={showForm ? "" : "w-full"}>
-                      {/* Week Navigation */}
-                      <div className="flex items-center justify-between mb-6">
-                        <button
-                          onClick={() => setCurrentWeek(addWeeks(currentWeek, -2))}
-                          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        >
-                          <ChevronLeft className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                        </button>
+                      {/* Week Header */}
+                      <div className="flex items-center justify-center mb-6">
                         <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
                           {format(firstWeek[0], 'MMM d')} - {format(secondWeek[6], 'MMM d, yyyy')}
                         </h3>
-                        <button
-                          onClick={() => setCurrentWeek(addWeeks(currentWeek, 2))}
-                          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        >
-                          <ChevronRight className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                        </button>
                       </div>
 
                       {/* First Week */}
@@ -300,7 +296,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                         </p>
                         <div className="grid grid-cols-7 gap-2">
                           {firstWeek.map((day, index) => {
-                            const isAvailable = isDateAvailable(day) && day >= new Date()
+                            const isAvailable = isDateAvailable(day)
                             const isSelected = selectedDate && isSameDay(day, selectedDate)
 
                             return (
@@ -337,7 +333,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                         </p>
                         <div className="grid grid-cols-7 gap-2">
                           {secondWeek.map((day, index) => {
-                            const isAvailable = isDateAvailable(day) && day >= new Date()
+                            const isAvailable = isDateAvailable(day)
                             const isSelected = selectedDate && isSameDay(day, selectedDate)
 
                             return (
