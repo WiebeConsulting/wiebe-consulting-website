@@ -22,7 +22,7 @@ export default async function Image() {
           padding: '60px 80px',
           position: 'relative',
           backgroundImage: 'url(https://wiebe-consulting.com/og-background.png)',
-          backgroundSize: '115%',
+          backgroundSize: '140%',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
           backgroundColor: '#0f172a',
