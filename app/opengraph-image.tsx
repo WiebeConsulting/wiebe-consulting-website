@@ -22,8 +22,10 @@ export default async function Image() {
           padding: '60px 80px',
           position: 'relative',
           backgroundImage: 'url(https://wiebe-consulting.com/og-background.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'top left',
+          backgroundSize: 'contain',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundColor: '#0f172a',
         }}
       >
         {/* Dark overlay for text readability */}
