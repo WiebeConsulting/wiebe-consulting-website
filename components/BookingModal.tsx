@@ -276,12 +276,12 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
           >
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl pointer-events-auto">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-5xl pointer-events-auto">
               {/* Header */}
-              <div className="border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between">
+              <div className="border-b border-slate-200 dark:border-slate-700 px-8 py-5 flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">Book Your Fit Call</h2>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">30-minute call (EST)</p>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Book Your Fit Call</h2>
+                  <p className="text-base text-slate-600 dark:text-slate-400">30-minute strategy call (EST)</p>
                 </div>
                 <button
                   onClick={onClose}
@@ -311,16 +311,16 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                   </div>
                 </div>
               ) : (
-                <div className="p-4 md:p-6">
-                  <div className="grid md:grid-cols-2 gap-6">
+                <div className="p-6 md:p-8">
+                  <div className="grid md:grid-cols-2 gap-8">
                     {/* Left: Calendar + Time Slots */}
                     <div>
                       {/* Calendar */}
-                      <div className="mb-4">
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-medium">
+                      <div className="mb-6">
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-3 font-medium">
                           {format(firstWeek[0], 'MMM d')} - {format(firstWeek[6], 'd')}
                         </p>
-                        <div className="grid grid-cols-7 gap-1">
+                        <div className="grid grid-cols-7 gap-2">
                           {firstWeek.map((day, index) => {
                             const isAvailable = isDateAvailable(day)
                             const isSelected = selectedDate && isSameDay(day, selectedDate)
@@ -329,7 +329,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                                 key={index}
                                 onClick={() => handleDateSelect(day)}
                                 disabled={!isAvailable}
-                                className={`p-2 rounded-lg text-center transition-all ${
+                                className={`p-3 rounded-lg text-center transition-all ${
                                   isSelected
                                     ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white'
                                     : isAvailable
@@ -337,10 +337,10 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                                       : 'opacity-40 cursor-not-allowed'
                                 }`}
                               >
-                                <div className={`text-[10px] ${isSelected ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`}>
+                                <div className={`text-xs ${isSelected ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`}>
                                   {format(day, 'EEE')}
                                 </div>
-                                <div className={`text-sm font-semibold ${isSelected ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
+                                <div className={`text-base font-semibold ${isSelected ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
                                   {format(day, 'd')}
                                 </div>
                               </button>
@@ -349,11 +349,11 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                         </div>
                       </div>
 
-                      <div className="mb-4">
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-medium">
+                      <div className="mb-6">
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-3 font-medium">
                           {format(secondWeek[0], 'MMM d')} - {format(secondWeek[6], 'd')}
                         </p>
-                        <div className="grid grid-cols-7 gap-1">
+                        <div className="grid grid-cols-7 gap-2">
                           {secondWeek.map((day, index) => {
                             const isAvailable = isDateAvailable(day)
                             const isSelected = selectedDate && isSameDay(day, selectedDate)
@@ -362,7 +362,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                                 key={index}
                                 onClick={() => handleDateSelect(day)}
                                 disabled={!isAvailable}
-                                className={`p-2 rounded-lg text-center transition-all ${
+                                className={`p-3 rounded-lg text-center transition-all ${
                                   isSelected
                                     ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white'
                                     : isAvailable
@@ -370,10 +370,10 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                                       : 'opacity-40 cursor-not-allowed'
                                 }`}
                               >
-                                <div className={`text-[10px] ${isSelected ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`}>
+                                <div className={`text-xs ${isSelected ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`}>
                                   {format(day, 'EEE')}
                                 </div>
-                                <div className={`text-sm font-semibold ${isSelected ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
+                                <div className={`text-base font-semibold ${isSelected ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
                                   {format(day, 'd')}
                                 </div>
                               </button>
@@ -385,40 +385,40 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                       {/* Time Slots - 3 visible */}
                       {selectedDate && (
                         <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="text-base font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                              <Clock className="w-5 h-5" />
                               Select Time
                             </h4>
                             {hasTimeSelected && (
                               <div className="flex gap-1">
                                 <button
                                   onClick={() => navigateTime('up')}
-                                  className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded"
+                                  className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded"
                                 >
-                                  <ChevronUp className="w-4 h-4 text-slate-500" />
+                                  <ChevronUp className="w-5 h-5 text-slate-500" />
                                 </button>
                                 <button
                                   onClick={() => navigateTime('down')}
-                                  className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded"
+                                  className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded"
                                 >
-                                  <ChevronDown className="w-4 h-4 text-slate-500" />
+                                  <ChevronDown className="w-5 h-5 text-slate-500" />
                                 </button>
                               </div>
                             )}
                           </div>
                           {loading ? (
-                            <div className="flex items-center justify-center py-6">
+                            <div className="flex items-center justify-center py-8">
                               <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
                             </div>
                           ) : (
-                            <div className="flex gap-2">
+                            <div className="flex gap-3">
                               {visibleSlots.map(({ slot, index }) => (
                                 <button
                                   key={index}
                                   onClick={() => handleTimeSelect(slot, index)}
                                   disabled={!slot.available}
-                                  className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+                                  className={`flex-1 py-3 px-4 rounded-lg text-base font-medium transition-all ${
                                     selectedTime === slot.dateTime
                                       ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-lg'
                                       : slot.available
@@ -437,15 +437,15 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
 
                     {/* Right: Form */}
                     <div>
-                      <h4 className="text-sm font-medium text-slate-900 dark:text-white mb-3">Your Information</h4>
-                      <form onSubmit={handleSubmit} className="space-y-3">
-                        <div className="grid grid-cols-2 gap-3">
+                      <h4 className="text-base font-medium text-slate-900 dark:text-white mb-4">Your Information</h4>
+                      <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
                           <input
                             type="text"
                             required
                             value={formData.firstName}
                             onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                            className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                             placeholder="First Name *"
                           />
                           <input
@@ -453,7 +453,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                             required
                             value={formData.lastName}
                             onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                            className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                             placeholder="Last Name *"
                           />
                         </div>
@@ -462,7 +462,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                           required
                           value={formData.email}
                           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                          className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                           placeholder="Work Email *"
                         />
                         <input
@@ -470,7 +470,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                           required
                           value={formData.clinicName}
                           onChange={(e) => setFormData({ ...formData, clinicName: e.target.value })}
-                          className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                           placeholder="Clinic Name *"
                         />
                         <input
@@ -478,13 +478,13 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                           required
                           value={formData.phone}
                           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                          className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                           placeholder="Cell Phone *"
                         />
 
                         {selectedTime && (
-                          <div className="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-500/30 rounded-lg p-3">
-                            <p className="text-xs text-slate-600 dark:text-slate-400">
+                          <div className="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-500/30 rounded-lg p-4">
+                            <p className="text-sm text-slate-600 dark:text-slate-400">
                               <span className="font-semibold">Selected:</span>{' '}
                               {selectedDate && format(selectedDate, 'EEE, MMM d')} at{' '}
                               {availableSlots.find(s => s.dateTime === selectedTime)?.time} EST
@@ -495,7 +495,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                         <button
                           type="submit"
                           disabled={!selectedTime || submitting}
-                          className={`w-full py-3 rounded-lg font-semibold text-white transition-all ${
+                          className={`w-full py-4 rounded-lg font-semibold text-white text-lg transition-all ${
                             selectedTime && !submitting
                               ? 'bg-gradient-to-r from-primary-500 to-accent-500 hover:shadow-xl'
                               : 'bg-slate-300 dark:bg-slate-700 cursor-not-allowed'
@@ -503,7 +503,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                         >
                           {submitting ? (
                             <span className="flex items-center justify-center gap-2">
-                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <Loader2 className="w-5 h-5 animate-spin" />
                               Booking...
                             </span>
                           ) : (
