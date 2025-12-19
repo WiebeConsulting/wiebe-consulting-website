@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Calendar as CalendarIcon, Clock, Loader2 } from 'lucide-react'
+import { X, Calendar as CalendarIcon, Clock, Loader2, ChevronUp, ChevronDown } from 'lucide-react'
 import { format, addDays, startOfWeek, isSameDay } from 'date-fns'
 import { analytics, getUTMParams } from '@/lib/analytics'
 
@@ -29,6 +29,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
   const [currentWeek] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
+  const [selectedTimeIndex, setSelectedTimeIndex] = useState<number>(-1)
 
   // Calculate the max date (2 weeks from today)
   const today = new Date()
@@ -38,7 +39,6 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [showConfirmation, setShowConfirmation] = useState(false)
-  const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
@@ -47,19 +47,29 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
     phone: ''
   })
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen])
+
   // Generate 2 weeks of days starting from Sunday
   const getTwoWeekDays = () => {
-    const start = startOfWeek(currentWeek, { weekStartsOn: 0 }) // Sunday = 0
+    const start = startOfWeek(currentWeek, { weekStartsOn: 0 })
     return Array.from({ length: 14 }, (_, i) => addDays(start, i))
   }
 
-  // Check if date is available (Sunday-Thursday or Friday before 10am, and within 2 weeks)
+  // Check if date is available
   const isDateAvailable = (date: Date) => {
     const day = date.getDay()
     const dateOnly = new Date(date)
     dateOnly.setHours(0, 0, 0, 0)
-    // Sunday=0, Monday=1, Tuesday=2, Wednesday=3, Thursday=4, Friday=5
-    // Must be within next 2 weeks
     return day >= 0 && day <= 5 && dateOnly >= today && dateOnly <= maxDate
   }
 
@@ -67,23 +77,20 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
   const generateTimeSlots = (date: Date): TimeSlot[] => {
     const day = date.getDay()
     const slots: TimeSlot[] = []
-
-    let startHour = 7
-    let endHour = day === 5 ? 10 : 16 // Friday ends at 10am, others at 4pm
+    const startHour = 7
+    const endHour = day === 5 ? 10 : 16
 
     for (let hour = startHour; hour < endHour; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
         const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
         const dateTimeString = format(date, 'yyyy-MM-dd') + 'T' + timeString
-
         slots.push({
           time: format(new Date(`2000-01-01T${timeString}`), 'h:mm a'),
-          available: true, // Will be updated by API call
+          available: true,
           dateTime: dateTimeString
         })
       }
     }
-
     return slots
   }
 
@@ -93,24 +100,16 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
     try {
       const dateStr = format(date, 'yyyy-MM-dd')
       const response = await fetch(`/api/calendar/availability?date=${dateStr}`)
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch availability')
-      }
-
+      if (!response.ok) throw new Error('Failed to fetch availability')
       const data = await response.json()
       const slots = generateTimeSlots(date)
-
-      // Mark slots as unavailable based on API response
       const updatedSlots = slots.map(slot => ({
         ...slot,
         available: !data.bookedSlots.includes(slot.dateTime)
       }))
-
       setAvailableSlots(updatedSlots)
     } catch (error) {
       console.error('Error fetching availability:', error)
-      // Fallback: show all slots as available
       setAvailableSlots(generateTimeSlots(date))
     } finally {
       setLoading(false)
@@ -120,42 +119,90 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
   useEffect(() => {
     if (selectedDate) {
       fetchAvailableSlots(selectedDate)
+      setSelectedTime(null)
+      setSelectedTimeIndex(-1)
     }
   }, [selectedDate])
 
   const handleDateSelect = (date: Date) => {
     if (isDateAvailable(date)) {
       setSelectedDate(date)
-      setSelectedTime(null)
       analytics.dateSelected(format(date, 'yyyy-MM-dd'))
     }
   }
 
-  const handleTimeSelect = (slot: TimeSlot) => {
+  const handleTimeSelect = (slot: TimeSlot, index: number) => {
     if (slot.available && selectedDate) {
       setSelectedTime(slot.dateTime)
-      setShowForm(true) // Show form after time selection
+      setSelectedTimeIndex(index)
       analytics.timeSelected(slot.time, format(selectedDate, 'yyyy-MM-dd'))
       analytics.formStarted()
     }
   }
 
+  // Get visible time slots (one before, selected, one after)
+  const getVisibleSlots = () => {
+    if (selectedTimeIndex === -1 || availableSlots.length === 0) {
+      // Show first 3 available slots
+      const available = availableSlots.filter(s => s.available)
+      return available.slice(0, 3).map(slot => ({
+        slot,
+        index: availableSlots.indexOf(slot)
+      }))
+    }
+
+    const result: { slot: TimeSlot; index: number }[] = []
+
+    // Find previous available slot
+    for (let i = selectedTimeIndex - 1; i >= 0; i--) {
+      if (availableSlots[i].available) {
+        result.push({ slot: availableSlots[i], index: i })
+        break
+      }
+    }
+
+    // Add selected slot
+    result.push({ slot: availableSlots[selectedTimeIndex], index: selectedTimeIndex })
+
+    // Find next available slot
+    for (let i = selectedTimeIndex + 1; i < availableSlots.length; i++) {
+      if (availableSlots[i].available) {
+        result.push({ slot: availableSlots[i], index: i })
+        break
+      }
+    }
+
+    return result.sort((a, b) => a.index - b.index)
+  }
+
+  const navigateTime = (direction: 'up' | 'down') => {
+    if (selectedTimeIndex === -1) return
+
+    const available = availableSlots
+      .map((slot, index) => ({ slot, index }))
+      .filter(item => item.slot.available)
+
+    const currentAvailableIndex = available.findIndex(item => item.index === selectedTimeIndex)
+
+    if (direction === 'up' && currentAvailableIndex > 0) {
+      const prev = available[currentAvailableIndex - 1]
+      handleTimeSelect(prev.slot, prev.index)
+    } else if (direction === 'down' && currentAvailableIndex < available.length - 1) {
+      const next = available[currentAvailableIndex + 1]
+      handleTimeSelect(next.slot, next.index)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
     if (!selectedTime || !selectedDate) return
 
     setSubmitting(true)
-
     try {
-      // Get UTM parameters for attribution tracking
       const utmParams = getUTMParams()
-
       const response = await fetch('/api/calendar/book', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           dateTime: selectedTime,
           firstName: formData.firstName,
@@ -163,7 +210,6 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
           email: formData.email,
           clinicName: formData.clinicName,
           phone: formData.phone,
-          // Include UTM tracking data
           utm_source: utmParams.utm_source,
           utm_medium: utmParams.utm_medium,
           utm_campaign: utmParams.utm_campaign,
@@ -174,27 +220,20 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
         }),
       })
 
-      if (!response.ok) {
-        throw new Error('Booking failed')
-      }
+      if (!response.ok) throw new Error('Booking failed')
 
-      const result = await response.json()
       setShowConfirmation(true)
-
-      // Track booking with full UTM data (utmParams already defined above)
       analytics.bookingConfirmed({
         dateTime: selectedTime || '',
         clinicName: formData.clinicName,
         utmParams
       })
 
-      // Reset form after 5 seconds
       setTimeout(() => {
         setShowConfirmation(false)
         onClose()
         resetForm()
       }, 5000)
-
     } catch (error) {
       console.error('Error booking appointment:', error)
       analytics.bookingFailed(error instanceof Error ? error.message : 'Unknown error')
@@ -207,19 +246,15 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
   const resetForm = () => {
     setSelectedDate(null)
     setSelectedTime(null)
-    setShowForm(false)
-    setFormData({
-      firstName: '',
-      lastName: '',
-      email: '',
-      clinicName: '',
-      phone: ''
-    })
+    setSelectedTimeIndex(-1)
+    setFormData({ firstName: '', lastName: '', email: '', clinicName: '', phone: '' })
   }
 
   const twoWeekDays = getTwoWeekDays()
   const firstWeek = twoWeekDays.slice(0, 7)
   const secondWeek = twoWeekDays.slice(7, 14)
+  const visibleSlots = getVisibleSlots()
+  const hasTimeSelected = selectedTime !== null
 
   return (
     <AnimatePresence>
@@ -241,83 +276,71 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
           >
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden pointer-events-auto">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl pointer-events-auto">
               {/* Header */}
-              <div className="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-6 flex items-center justify-between z-10">
+              <div className="border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Book Your Fit Call</h2>
-                  <p className="text-slate-600 dark:text-slate-400 mt-1">Choose a 30-minute slot that works for you (EST)</p>
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">Book Your Fit Call</h2>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">30-minute call (EST)</p>
                 </div>
                 <button
                   onClick={onClose}
                   className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
                 >
-                  <X className="w-6 h-6 text-slate-600 dark:text-slate-400" />
+                  <X className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                 </button>
               </div>
 
               {showConfirmation ? (
-                // Confirmation Screen
                 <div className="p-8 text-center">
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6"
+                    className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4"
                   >
-                    <CalendarIcon className="w-10 h-10 text-white" />
+                    <CalendarIcon className="w-8 h-8 text-white" />
                   </motion.div>
-                  <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">You're Booked!</h3>
-                  <p className="text-lg text-slate-600 dark:text-slate-400 mb-6 max-w-2xl mx-auto">
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">You're Booked!</h3>
+                  <p className="text-slate-600 dark:text-slate-400 mb-4">
                     A calendar invite with a Zoom link is on its way to your inbox.
                   </p>
-                  <div className="bg-primary-50 dark:bg-primary-900/20 border-2 border-primary-200 dark:border-primary-500/30 rounded-xl p-6 max-w-2xl mx-auto">
-                    <p className="text-slate-700 dark:text-slate-300 font-semibold mb-2">Next Step:</p>
-                    <p className="text-slate-600 dark:text-slate-400">
-                      Reply to that email with your best guess at your current monthly revenue and how many active patients are in your EMR.
+                  <div className="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-500/30 rounded-lg p-4 max-w-md mx-auto">
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      <span className="font-semibold">Next Step:</span> Reply with your monthly revenue and active patient count.
                     </p>
                   </div>
                 </div>
               ) : (
-                <div className="p-6">
-                  <div className={showForm ? "grid md:grid-cols-2 gap-8" : "max-w-4xl mx-auto"}>
-                    {/* Calendar Section */}
-                    <div className={showForm ? "" : "w-full"}>
-                      {/* Week Header */}
-                      <div className="flex items-center justify-center mb-6">
-                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                          {format(firstWeek[0], 'MMM d')} - {format(secondWeek[6], 'MMM d, yyyy')}
-                        </h3>
-                      </div>
-
-                      {/* First Week */}
+                <div className="p-4 md:p-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* Left: Calendar + Time Slots */}
+                    <div>
+                      {/* Calendar */}
                       <div className="mb-4">
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-semibold">
-                          {format(firstWeek[0], 'MMMM d')} - {format(firstWeek[6], 'd, yyyy')}
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-medium">
+                          {format(firstWeek[0], 'MMM d')} - {format(firstWeek[6], 'd')}
                         </p>
-                        <div className="grid grid-cols-7 gap-2">
+                        <div className="grid grid-cols-7 gap-1">
                           {firstWeek.map((day, index) => {
                             const isAvailable = isDateAvailable(day)
                             const isSelected = selectedDate && isSameDay(day, selectedDate)
-
                             return (
                               <button
                                 key={index}
                                 onClick={() => handleDateSelect(day)}
                                 disabled={!isAvailable}
-                                className={`
-                                  p-3 rounded-lg text-center transition-all
-                                  ${isSelected
-                                    ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-lg'
+                                className={`p-2 rounded-lg text-center transition-all ${
+                                  isSelected
+                                    ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white'
                                     : isAvailable
                                       ? 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'
-                                      : 'bg-slate-50 dark:bg-slate-900 opacity-50 cursor-not-allowed'
-                                  }
-                                `}
+                                      : 'opacity-40 cursor-not-allowed'
+                                }`}
                               >
-                                <div className={`text-xs mb-1 ${isSelected ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`}>
+                                <div className={`text-[10px] ${isSelected ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`}>
                                   {format(day, 'EEE')}
                                 </div>
-                                <div className={`text-lg font-semibold ${isSelected ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
+                                <div className={`text-sm font-semibold ${isSelected ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
                                   {format(day, 'd')}
                                 </div>
                               </button>
@@ -326,70 +349,82 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                         </div>
                       </div>
 
-                      {/* Second Week */}
-                      <div className="mb-6">
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-semibold">
-                          {format(secondWeek[0], 'MMMM d')} - {format(secondWeek[6], 'd, yyyy')}
+                      <div className="mb-4">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-medium">
+                          {format(secondWeek[0], 'MMM d')} - {format(secondWeek[6], 'd')}
                         </p>
-                        <div className="grid grid-cols-7 gap-2">
+                        <div className="grid grid-cols-7 gap-1">
                           {secondWeek.map((day, index) => {
                             const isAvailable = isDateAvailable(day)
                             const isSelected = selectedDate && isSameDay(day, selectedDate)
-
                             return (
-                            <button
-                              key={index}
-                              onClick={() => handleDateSelect(day)}
-                              disabled={!isAvailable}
-                              className={`
-                                p-3 rounded-lg text-center transition-all
-                                ${isSelected
-                                  ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-lg'
-                                  : isAvailable
-                                    ? 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'
-                                    : 'bg-slate-50 dark:bg-slate-900 opacity-50 cursor-not-allowed'
-                                }
-                              `}
-                            >
-                              <div className={`text-xs mb-1 ${isSelected ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`}>
-                                {format(day, 'EEE')}
-                              </div>
-                              <div className={`text-lg font-semibold ${isSelected ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
-                                {format(day, 'd')}
-                              </div>
-                            </button>
-                          )
-                        })}
+                              <button
+                                key={index}
+                                onClick={() => handleDateSelect(day)}
+                                disabled={!isAvailable}
+                                className={`p-2 rounded-lg text-center transition-all ${
+                                  isSelected
+                                    ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white'
+                                    : isAvailable
+                                      ? 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                      : 'opacity-40 cursor-not-allowed'
+                                }`}
+                              >
+                                <div className={`text-[10px] ${isSelected ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`}>
+                                  {format(day, 'EEE')}
+                                </div>
+                                <div className={`text-sm font-semibold ${isSelected ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
+                                  {format(day, 'd')}
+                                </div>
+                              </button>
+                            )
+                          })}
+                        </div>
                       </div>
-                    </div>
 
-                      {/* Time Slots */}
+                      {/* Time Slots - 3 visible */}
                       {selectedDate && (
                         <div>
-                          <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
-                            <Clock className="w-4 h-4" />
-                            Available Times (EST)
-                          </h4>
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                              <Clock className="w-4 h-4" />
+                              Select Time
+                            </h4>
+                            {hasTimeSelected && (
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={() => navigateTime('up')}
+                                  className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded"
+                                >
+                                  <ChevronUp className="w-4 h-4 text-slate-500" />
+                                </button>
+                                <button
+                                  onClick={() => navigateTime('down')}
+                                  className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded"
+                                >
+                                  <ChevronDown className="w-4 h-4 text-slate-500" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
                           {loading ? (
-                            <div className="flex items-center justify-center py-12">
-                              <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+                            <div className="flex items-center justify-center py-6">
+                              <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
                             </div>
                           ) : (
-                            <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto">
-                              {availableSlots.map((slot, index) => (
+                            <div className="flex gap-2">
+                              {visibleSlots.map(({ slot, index }) => (
                                 <button
                                   key={index}
-                                  onClick={() => handleTimeSelect(slot)}
+                                  onClick={() => handleTimeSelect(slot, index)}
                                   disabled={!slot.available}
-                                  className={`
-                                    p-3 rounded-lg text-sm font-medium transition-all
-                                    ${selectedTime === slot.dateTime
+                                  className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+                                    selectedTime === slot.dateTime
                                       ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-lg'
                                       : slot.available
                                         ? 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white'
-                                        : 'bg-slate-50 dark:bg-slate-900 text-slate-400 dark:text-slate-600 cursor-not-allowed line-through'
-                                    }
-                                  `}
+                                        : 'bg-slate-50 dark:bg-slate-900 text-slate-400 cursor-not-allowed line-through'
+                                  }`}
                                 >
                                   {slot.time}
                                 </button>
@@ -400,89 +435,58 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                       )}
                     </div>
 
-                    {/* Form Section - Only show after time selection */}
-                    {showForm && (
-                      <div>
-                        <h4 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Your Information</h4>
-                      <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                              First Name *
-                            </label>
-                            <input
-                              type="text"
-                              required
-                              value={formData.firstName}
-                              onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                              className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                              placeholder="John"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                              Last Name *
-                            </label>
-                            <input
-                              type="text"
-                              required
-                              value={formData.lastName}
-                              onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                              className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                              placeholder="Smith"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                            Work Email *
-                          </label>
-                          <input
-                            type="email"
-                            required
-                            value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                            placeholder="john@clinic.com"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                            Clinic Name *
-                          </label>
+                    {/* Right: Form */}
+                    <div>
+                      <h4 className="text-sm font-medium text-slate-900 dark:text-white mb-3">Your Information</h4>
+                      <form onSubmit={handleSubmit} className="space-y-3">
+                        <div className="grid grid-cols-2 gap-3">
                           <input
                             type="text"
                             required
-                            value={formData.clinicName}
-                            onChange={(e) => setFormData({ ...formData, clinicName: e.target.value })}
-                            className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                            placeholder="Your Clinic Name"
+                            value={formData.firstName}
+                            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                            className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            placeholder="First Name *"
                           />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                            Cell Phone *
-                          </label>
                           <input
-                            type="tel"
+                            type="text"
                             required
-                            value={formData.phone}
-                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                            className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                            placeholder="+1 (555) 123-4567"
+                            value={formData.lastName}
+                            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                            className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            placeholder="Last Name *"
                           />
                         </div>
+                        <input
+                          type="email"
+                          required
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          placeholder="Work Email *"
+                        />
+                        <input
+                          type="text"
+                          required
+                          value={formData.clinicName}
+                          onChange={(e) => setFormData({ ...formData, clinicName: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          placeholder="Clinic Name *"
+                        />
+                        <input
+                          type="tel"
+                          required
+                          value={formData.phone}
+                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          placeholder="Cell Phone *"
+                        />
 
                         {selectedTime && (
-                          <div className="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-500/30 rounded-lg p-4">
-                            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                              Selected Time:
-                            </p>
-                            <p className="text-primary-600 dark:text-primary-400 font-bold">
-                              {selectedDate && format(selectedDate, 'EEEE, MMMM d, yyyy')} at{' '}
+                          <div className="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-500/30 rounded-lg p-3">
+                            <p className="text-xs text-slate-600 dark:text-slate-400">
+                              <span className="font-semibold">Selected:</span>{' '}
+                              {selectedDate && format(selectedDate, 'EEE, MMM d')} at{' '}
                               {availableSlots.find(s => s.dateTime === selectedTime)?.time} EST
                             </p>
                           </div>
@@ -491,17 +495,15 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                         <button
                           type="submit"
                           disabled={!selectedTime || submitting}
-                          className={`
-                            w-full py-4 rounded-lg font-semibold text-white transition-all
-                            ${selectedTime && !submitting
+                          className={`w-full py-3 rounded-lg font-semibold text-white transition-all ${
+                            selectedTime && !submitting
                               ? 'bg-gradient-to-r from-primary-500 to-accent-500 hover:shadow-xl'
                               : 'bg-slate-300 dark:bg-slate-700 cursor-not-allowed'
-                            }
-                          `}
+                          }`}
                         >
                           {submitting ? (
                             <span className="flex items-center justify-center gap-2">
-                              <Loader2 className="w-5 h-5 animate-spin" />
+                              <Loader2 className="w-4 h-4 animate-spin" />
                               Booking...
                             </span>
                           ) : (
@@ -510,7 +512,6 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
                         </button>
                       </form>
                     </div>
-                    )}
                   </div>
                 </div>
               )}
